@@ -1,0 +1,92 @@
+﻿<Window x:Class="NNotify.Windows.TrayMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:NNotify.Localization"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="Manual"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <Window.Resources>
+        <Style x:Key="TrayMenuButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="220" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="Margin" Value="0,3,0,3" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="IconText"
+                                           Grid.Column="0"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Text="&#xE8A5;" />
+                                <ContentPresenter Grid.Column="1"
+                                                  Margin="8,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="add">
+                                <Setter TargetName="IconText" Property="Text" Value="&#xE710;" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="exit">
+                                <Setter TargetName="IconText" Property="Text" Value="&#xE8AC;" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.84" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="6">
+        <Border Style="{StaticResource PanelCardStyle}" Padding="10">
+            <StackPanel>
+                <TextBlock Text="NNotify" FontWeight="Bold" FontSize="15" Margin="0" />
+                <TextBlock Text="{loc:Loc TrayQuickActions}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,6" />
+
+                <Rectangle Height="1" Fill="{DynamicResource BorderBrushLight}" Margin="0,2,0,6" />
+
+                <Button x:Name="OpenButton"
+                        Style="{StaticResource TrayMenuButtonStyle}"
+                        Content="{loc:Loc TrayOpen}"
+                        Click="OnOpenClick" />
+                <Button Style="{StaticResource TrayMenuButtonStyle}"
+                        Tag="add"
+                        Content="{loc:Loc TrayAddReminder}"
+                        Click="OnAddClick" />
+                <Button Style="{StaticResource TrayMenuButtonStyle}"
+                        Tag="exit"
+                        Content="{loc:Loc TrayExit}"
+                        Click="OnExitClick" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

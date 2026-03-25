@@ -1,0 +1,82 @@
+﻿<Window x:Class="NNotify.Windows.ReminderOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:NNotify.Localization"
+        Title="{loc:Loc OverlayWindowTitle}"
+        Height="300"
+        Width="640"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"
+        Background="Transparent"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextHintingMode="Fixed">
+    <Grid Background="Transparent" Margin="2">
+        <Border x:Name="PulseBorder"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                BorderThickness="2"
+                CornerRadius="14"
+                Padding="18"
+                ClipToBounds="True"
+                MouseLeftButtonDown="OnOverlayMouseLeftButtonDown">
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop x:Name="OverlayStartStop" Color="#1FA9FF" Offset="0" />
+                    <GradientStop x:Name="OverlayEndStop" Color="#355CFF" Offset="1" />
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+
+            <Grid RenderOptions.ClearTypeHint="Enabled">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="{loc:Loc OverlayHeaderTriggered}"
+                           FontWeight="Bold"
+                           FontSize="19"
+                           Margin="0,0,0,4" />
+
+                <TextBlock x:Name="TitleText"
+                           Grid.Row="1"
+                           FontSize="15"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,4" />
+
+                <TextBlock x:Name="DueText"
+                           Grid.Row="2"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           Margin="0,0,0,8" />
+
+                <TextBlock x:Name="CountdownText"
+                           Grid.Row="3"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           Margin="0,0,0,8" />
+
+                <Grid Grid.Row="4" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Margin="0,4,6,0" Content="{loc:Loc ActionEdit}" Click="OnEditClick" />
+                    <Button Grid.Column="1" Margin="2,4,4,0" Content="{loc:Loc ActionSnooze15}" Click="OnSnooze15Click" />
+                    <Button Grid.Column="2" Margin="4,4,2,0" Content="{loc:Loc ActionSnooze5}" Click="OnSnooze5Click" />
+                    <Button Grid.Column="3" Margin="6,4,0,0" Content="{loc:Loc ActionAck}" Style="{StaticResource AccentButtonStyle}" Click="OnAckClick" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

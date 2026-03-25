@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppName" xml:space="preserve"><value>NNotify</value></data>
+  <data name="AppStartupFailedBody" xml:space="preserve"><value>NNotify konnte nicht gestartet werden. Details in %LOCALAPPDATA%\NNotify\log.txt</value></data>
+  <data name="MainDapiSaveWarningBody" xml:space="preserve"><value>Token konnte nicht gespeichert werden: DPAPI ist nicht verfügbar. Das Token wurde nicht aktualisiert.</value></data>
+
+  <data name="CommonOk" xml:space="preserve"><value>OK</value></data>
+  <data name="CommonCancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="CommonSave" xml:space="preserve"><value>Speichern</value></data>
+  <data name="CommonDelete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="CommonEdit" xml:space="preserve"><value>Bearbeiten</value></data>
+  <data name="CommonRefresh" xml:space="preserve"><value>Aktualisieren</value></data>
+  <data name="CommonSettings" xml:space="preserve"><value>Einstellungen</value></data>
+  <data name="CommonAddReminder" xml:space="preserve"><value>Erinnerung hinzufügen</value></data>
+  <data name="CommonCheckDataTitle" xml:space="preserve"><value>Eingaben prüfen</value></data>
+
+  <data name="ActionAck" xml:space="preserve"><value>Bestätigen</value></data>
+  <data name="ActionSnooze5" xml:space="preserve"><value>5 Min verschieben</value></data>
+  <data name="ActionSnooze15" xml:space="preserve"><value>15 Min verschieben</value></data>
+  <data name="ActionEdit" xml:space="preserve"><value>Bearbeiten</value></data>
+
+  <data name="MainButtonAdd" xml:space="preserve"><value>+ Hinzufügen</value></data>
+  <data name="MainTagline" xml:space="preserve"><value>Erinnerungen ohne Aussetzer</value></data>
+  <data name="MainAlwaysOnTop" xml:space="preserve"><value>Immer im Vordergrund</value></data>
+  <data name="MainDarkTheme" xml:space="preserve"><value>Dunkles Design</value></data>
+  <data name="MainUpcomingTitle" xml:space="preserve"><value>Anstehend und aktiv</value></data>
+  <data name="MainUpcomingSubtitle" xml:space="preserve"><value>Wählen Sie unten eine Erinnerung für Schnellaktionen.</value></data>
+  <data name="MainMissedTitle" xml:space="preserve"><value>Beim Start verpasst</value></data>
+  <data name="MainMissedSubtitle" xml:space="preserve"><value>Erscheint, wenn die Zeit ablief, während die App geschlossen war.</value></data>
+  <data name="MainHistoryTitle" xml:space="preserve"><value>Verlauf</value></data>
+  <data name="MainHistorySubtitle" xml:space="preserve"><value>Bestätigte und gelöschte Erinnerungen</value></data>
+  <data name="MainColumnDue" xml:space="preserve"><value>Fällig</value></data>
+  <data name="MainColumnPriority" xml:space="preserve"><value>Priorität</value></data>
+  <data name="MainColumnText" xml:space="preserve"><value>Text</value></data>
+  <data name="MainColumnStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="MainColumnEscalation" xml:space="preserve"><value>Eskalation</value></data>
+  <data name="MainColumnWhen" xml:space="preserve"><value>Wann</value></data>
+  <data name="MainColumnResult" xml:space="preserve"><value>Ergebnis</value></data>
+  <data name="MainQuickActionsTitle" xml:space="preserve"><value>Schnellaktionen</value></data>
+  <data name="MainHotKeyDisabled" xml:space="preserve"><value>Hotkey: deaktiviert</value></data>
+  <data name="MainHotKeyReadyTemplate" xml:space="preserve"><value>Hotkey: {0}</value></data>
+  <data name="MainHotKeyBusyTemplate" xml:space="preserve"><value>Hotkey: {0} (belegt)</value></data>
+  <data name="MainDeleteTooltip" xml:space="preserve"><value>Löscht die ausgewählte Erinnerung</value></data>
+  <data name="MainDeleteReminderTitle" xml:space="preserve"><value>Erinnerung löschen</value></data>
+  <data name="MainDeleteHistoryTitle" xml:space="preserve"><value>Aus Verlauf löschen</value></data>
+  <data name="MainDeleteReminderMessageTemplate" xml:space="preserve"><value>Erinnerung &quot;{0}&quot; löschen?</value></data>
+  <data name="MainDeleteHistoryMessageTemplate" xml:space="preserve"><value>Verlaufseintrag &quot;{0}&quot; löschen?</value></data>
+  <data name="MainMenuRepeat" xml:space="preserve"><value>Wiederholen</value></data>
+
+  <data name="ReminderStatusScheduled" xml:space="preserve"><value>Geplant</value></data>
+  <data name="ReminderStatusFired" xml:space="preserve"><value>Ausgelöst</value></data>
+  <data name="ReminderStatusAcked" xml:space="preserve"><value>Bestätigt</value></data>
+  <data name="ReminderStatusSnoozed" xml:space="preserve"><value>Verschoben</value></data>
+  <data name="ReminderStatusCancelled" xml:space="preserve"><value>Abgebrochen</value></data>
+  <data name="ReminderStatusMissed" xml:space="preserve"><value>Verpasst</value></data>
+
+  <data name="PriorityHigh" xml:space="preserve"><value>Hoch</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Mittel</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Niedrig</value></data>
+
+  <data name="AddEditWindowTitleNew" xml:space="preserve"><value>Erinnerung hinzufügen</value></data>
+  <data name="AddEditWindowTitleRepeat" xml:space="preserve"><value>Erinnerung wiederholen</value></data>
+  <data name="AddEditWindowTitleEdit" xml:space="preserve"><value>Erinnerung bearbeiten</value></data>
+  <data name="AddEditHeading" xml:space="preserve"><value>Erinnerungsdetails</value></data>
+  <data name="AddEditLabelText" xml:space="preserve"><value>Erinnerungstext</value></data>
+  <data name="AddEditLabelTime" xml:space="preserve"><value>Zeit</value></data>
+  <data name="AddEditTooltipPickDate" xml:space="preserve"><value>Datum auswählen</value></data>
+  <data name="AddEditPlus3" xml:space="preserve"><value>+3 Min</value></data>
+  <data name="AddEditPlus5" xml:space="preserve"><value>+5 Min</value></data>
+  <data name="AddEditPlus10" xml:space="preserve"><value>+10 Min</value></data>
+  <data name="AddEditLabelPriority" xml:space="preserve"><value>Priorität</value></data>
+  <data name="AddEditValidationEnterText" xml:space="preserve"><value>Bitte einen Erinnerungstext eingeben.</value></data>
+  <data name="AddEditValidationSelectDate" xml:space="preserve"><value>Bitte ein Datum im Kalender auswählen.</value></data>
+  <data name="AddEditValidationInvalidTime" xml:space="preserve"><value>Ungültige Zeit. Verwenden Sie Stunden 00-23 und Minuten 00-59.</value></data>
+  <data name="AddEditValidationPastTime" xml:space="preserve"><value>Die gewählte Zeit liegt in der Vergangenheit. Bitte eine zukünftige Zeit wählen.</value></data>
+
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>Einstellungen</value></data>
+  <data name="SettingsHeadingTelegram" xml:space="preserve"><value>Telegram</value></data>
+  <data name="SettingsLabelBotToken" xml:space="preserve"><value>Bot-Token</value></data>
+  <data name="SettingsHintTokenMasked" xml:space="preserve"><value>Das Token ist maskiert. Zum Ersetzen einfach in dieses Feld tippen.</value></data>
+  <data name="SettingsLabelChatId" xml:space="preserve"><value>Chat-ID</value></data>
+  <data name="SettingsLabelUserId" xml:space="preserve"><value>Benutzer-ID</value></data>
+  <data name="SettingsHintOnlyOneTarget" xml:space="preserve"><value>Nur ein Feld ausfüllen: Chat-ID oder Benutzer-ID.</value></data>
+  <data name="SettingsHintUserStartBot" xml:space="preserve"><value>Für private Nachrichten muss der Benutzer den Bot öffnen und Start drücken.</value></data>
+  <data name="SettingsHintTokenStorage" xml:space="preserve"><value>Das Token wird in %LOCALAPPDATA%\NNotify\settings.json gespeichert.</value></data>
+  <data name="SettingsHintTokenProtection" xml:space="preserve"><value>Es wird DPAPI (ProtectedData, CurrentUser) verwendet, Klartext-Fallback ist deaktiviert.</value></data>
+  <data name="SettingsLabelHotKey" xml:space="preserve"><value>Hotkey</value></data>
+  <data name="SettingsEnableHotKey" xml:space="preserve"><value>Globalen Hotkey aktivieren</value></data>
+  <data name="SettingsHotKeyInputTooltip" xml:space="preserve"><value>Hier klicken und Kombination drücken, z. B. Ctrl+Y.</value></data>
+  <data name="SettingsHintHotKeyModifiers" xml:space="preserve"><value>Unterstützt: Ctrl/Shift/Alt/Win + Taste.</value></data>
+  <data name="SettingsHeadingSync" xml:space="preserve"><value>Synchronisationskonto</value></data>
+  <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Serveradresse</value></data>
+  <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Passwort</value></data>
+  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Bitte HTTPS verwenden. Standard-Port für den Sync-Server: 5334.</value></data>
+  <data name="SettingsButtonSyncRegister" xml:space="preserve"><value>Registrieren</value></data>
+  <data name="SettingsButtonSyncLogin" xml:space="preserve"><value>Anmelden</value></data>
+  <data name="SettingsButtonSyncLogout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="SettingsSyncStatusInvalidUsername" xml:space="preserve"><value>Der Benutzername muss mindestens 3 Zeichen enthalten.</value></data>
+  <data name="SettingsSyncStatusInvalidPassword" xml:space="preserve"><value>Das Passwort muss mindestens 8 Zeichen enthalten.</value></data>
+  <data name="SettingsSyncStatusEnterUsername" xml:space="preserve"><value>Bitte Benutzernamen eingeben.</value></data>
+  <data name="SettingsSyncStatusEnterPassword" xml:space="preserve"><value>Bitte Passwort eingeben.</value></data>
+  <data name="SettingsSyncStatusTokenSaveFailed" xml:space="preserve"><value>Sitzungstokens konnten nicht sicher gespeichert werden (DPAPI).</value></data>
+  <data name="SettingsSyncStatusLoggedIn" xml:space="preserve"><value>Anmeldung erfolgreich.</value></data>
+  <data name="SettingsSyncStatusLoggedOut" xml:space="preserve"><value>Sitzung beendet, abgemeldet.</value></data>
+  <data name="SettingsSyncStatusSessionActive" xml:space="preserve"><value>Sitzung ist aktiv. Synchronisation ist verfügbar.</value></data>
+  <data name="SettingsSyncStatusSessionMissing" xml:space="preserve"><value>Keine aktive Sitzung. Bitte anmelden.</value></data>
+  <data name="SettingsSyncStatusEnterServer" xml:space="preserve"><value>Bitte Sync-Serveradresse eingeben.</value></data>
+  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Ungültige Serveradresse. Beispiel: https://server.example.com:5334</value></data>
+  <data name="SettingsSyncStatusHttpsRequired" xml:space="preserve"><value>Für eine sichere Verbindung ist nur HTTPS erlaubt.</value></data>
+  <data name="SettingsLabelStartup" xml:space="preserve"><value>Autostart mit Windows</value></data>
+  <data name="SettingsHintStartup" xml:space="preserve"><value>Startet NNotify automatisch nach der Windows-Anmeldung (ohne separaten Dienst).</value></data>
+  <data name="SettingsStartupEnable" xml:space="preserve"><value>Autostart aktivieren</value></data>
+  <data name="SettingsStartupDisable" xml:space="preserve"><value>Autostart entfernen</value></data>
+  <data name="SettingsStartupStatusOn" xml:space="preserve"><value>Status: aktiviert</value></data>
+  <data name="SettingsStartupStatusOff" xml:space="preserve"><value>Status: deaktiviert</value></data>
+  <data name="SettingsButtonTestTelegram" xml:space="preserve"><value>Telegram testen</value></data>
+  <data name="SettingsDialogCheckDataEnterToken" xml:space="preserve"><value>Bot-Token eingeben oder vorhandenes gespeichertes Token beibehalten.</value></data>
+  <data name="SettingsDialogCheckDataEnterTarget" xml:space="preserve"><value>Chat-ID oder Benutzer-ID angeben.</value></data>
+  <data name="SettingsDialogTestSentTitle" xml:space="preserve"><value>Test gesendet</value></data>
+  <data name="SettingsDialogTestSentBody" xml:space="preserve"><value>Testnachricht wurde erfolgreich gesendet.</value></data>
+  <data name="SettingsDialogTestFailedTitle" xml:space="preserve"><value>Test nicht gesendet</value></data>
+  <data name="SettingsDialogTestFailedBody" xml:space="preserve"><value>Token und gewählte ID prüfen. Für private Nachrichten muss der Benutzer beim Bot Start drücken.</value></data>
+  <data name="SettingsDialogSendErrorTitle" xml:space="preserve"><value>Sende-Fehler</value></data>
+  <data name="SettingsDialogSendErrorBody" xml:space="preserve"><value>Testnachricht konnte nicht gesendet werden. Details in log.txt.</value></data>
+  <data name="SettingsDialogInvalidHotKeyBody" xml:space="preserve"><value>Gültige Hotkey-Kombination eingeben, z. B. Ctrl+Y.</value></data>
+  <data name="SettingsDialogOperationNotDoneTitle" xml:space="preserve"><value>Vorgang fehlgeschlagen</value></data>
+  <data name="SettingsDialogStartupUpdatedTitle" xml:space="preserve"><value>Autostart aktualisiert</value></data>
+  <data name="SettingsDialogStartupEnabledBody" xml:space="preserve"><value>NNotify startet jetzt automatisch nach der Windows-Anmeldung.</value></data>
+  <data name="SettingsDialogStartupDisabledBody" xml:space="preserve"><value>Autostart für NNotify ist deaktiviert.</value></data>
+  <data name="SettingsTooltipClearChatId" xml:space="preserve"><value>Chat-ID leeren, um Benutzer-ID einzugeben.</value></data>
+  <data name="SettingsTooltipClearUserId" xml:space="preserve"><value>Benutzer-ID leeren, um Chat-ID einzugeben.</value></data>
+  <data name="SettingsTestHeader" xml:space="preserve"><value>[TEST] NNotify</value></data>
+  <data name="SettingsTestAtTemplate" xml:space="preserve"><value>Gesendet um: {0:dd.MM.yyyy HH:mm:ss}</value></data>
+  <data name="SettingsAboutTitle" xml:space="preserve"><value>Über das Programm</value></data>
+  <data name="SettingsAboutNameLabel" xml:space="preserve"><value>Anwendung:</value></data>
+  <data name="SettingsAboutNameValue" xml:space="preserve"><value>NNotify</value></data>
+  <data name="SettingsAboutDeveloperLabel" xml:space="preserve"><value>Entwickler:</value></data>
+  <data name="SettingsAboutDeveloperValue" xml:space="preserve"><value>N.Neverov</value></data>
+  <data name="SettingsAboutVersionLabel" xml:space="preserve"><value>Version:</value></data>
+  <data name="SettingsAboutMottoLabel" xml:space="preserve"><value>Motto:</value></data>
+  <data name="SettingsAboutMottoValue" xml:space="preserve"><value>NNotify: No More 'Oops'</value></data>
+  <data name="SettingsAboutPlatformLabel" xml:space="preserve"><value>Technologie:</value></data>
+  <data name="SettingsAboutPlatformValue" xml:space="preserve"><value>.NET 8, WPF, SQLite</value></data>
+  <data name="SettingsAboutSignature" xml:space="preserve"><value>NNotify: No More 'Oops' ⏰</value></data>
+
+  <data name="ConfirmDefaultTitle" xml:space="preserve"><value>Bestätigung</value></data>
+  <data name="ConfirmDefaultQuestionTitle" xml:space="preserve"><value>Aktion bestätigen</value></data>
+  <data name="ConfirmDefaultDelete" xml:space="preserve"><value>Löschen</value></data>
+
+  <data name="OverlayWindowTitle" xml:space="preserve"><value>Erinnerung</value></data>
+  <data name="OverlayHeaderTriggered" xml:space="preserve"><value>Erinnerung ausgelöst</value></data>
+  <data name="OverlayDueTemplate" xml:space="preserve"><value>Fällig: {0}</value></data>
+  <data name="OverlayCountdownEscalationTemplate" xml:space="preserve"><value>Telegram-Eskalation in {0:00}s</value></data>
+  <data name="OverlayCountdownAutoCloseTemplate" xml:space="preserve"><value>Automatisches Schließen in {0:00}s</value></data>
+
+  <data name="TrayQuickActions" xml:space="preserve"><value>Schnellaktionen</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Öffnen</value></data>
+  <data name="TrayAddReminder" xml:space="preserve"><value>Erinnerung hinzufügen</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Beenden</value></data>
+
+  <data name="TelegramHeaderHigh" xml:space="preserve"><value>Wichtige Erinnerung 🚨</value></data>
+  <data name="TelegramHeaderMedium" xml:space="preserve"><value>Erinnerung mittlerer Priorität 🔔</value></data>
+  <data name="TelegramHeaderLow" xml:space="preserve"><value>Erinnerung niedriger Priorität 💡</value></data>
+  <data name="TelegramScheduledPrefix" xml:space="preserve"><value>Geplant:</value></data>
+  <data name="TelegramUntitled" xml:space="preserve"><value>Ohne Titel</value></data>
+
+  <data name="StartupErrorProcessPath" xml:space="preserve"><value>Pfad zu NNotify.exe konnte nicht ermittelt werden.</value></data>
+  <data name="StartupErrorRegistryKey" xml:space="preserve"><value>Autostart-Registrierungsschlüssel konnte nicht geöffnet werden.</value></data>
+  <data name="StartupErrorEnable" xml:space="preserve"><value>Autostart konnte nicht aktiviert werden. Details in log.txt.</value></data>
+  <data name="StartupErrorDisable" xml:space="preserve"><value>Autostart konnte nicht deaktiviert werden. Details in log.txt.</value></data>
+</root>
+

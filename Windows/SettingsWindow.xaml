@@ -1,0 +1,345 @@
+﻿<Window x:Class="NNotify.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:NNotify.Localization"
+        Title="{loc:Loc SettingsWindowTitle}"
+        MinHeight="680"
+        Width="600"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style x:Key="RoundedSettingsTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundedSettingsPasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="Transparent">
+        <Border Style="{StaticResource PanelCardStyle}" Margin="16" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="12,10,3,6" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="24" Height="24" CornerRadius="7" Background="{DynamicResource AccentGradientBrush}" ClipToBounds="True" VerticalAlignment="Center">
+                            <Grid>
+                                <Viewbox Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Fill="White" Data="M4,20 V4 H8 L16,12 V4 H20 V20 H16 L8,12 V20 Z" />
+                                    </Canvas>
+                                </Viewbox>
+                                <Ellipse Width="4"
+                                         Height="4"
+                                         Fill="#8EEBFF"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Top"
+                                         Margin="0,3,3,0" />
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="{loc:Loc SettingsWindowTitle}" Margin="8,0,0,0" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Style="{StaticResource TitleBarCloseButtonStyle}"
+                            Margin="2,5,0,0"
+                            VerticalAlignment="Center"
+                            Content="&#xE8BB;"
+                            Click="OnCloseButtonClick" />
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="14,8,14,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer Grid.Row="0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  Padding="0,0,0,4">
+                        <StackPanel>
+                        <TextBlock Text="{loc:Loc SettingsHeadingTelegram}" FontSize="31" FontWeight="Bold" Margin="4,0,4,8" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelBotToken}" FontWeight="SemiBold" Margin="4,4,4,0" />
+                        <PasswordBox x:Name="BotTokenPasswordBox"
+                                     Height="38"
+                                     Margin="4,4,4,0"
+                                     Style="{StaticResource RoundedSettingsPasswordBoxStyle}"
+                                     GotKeyboardFocus="OnBotTokenFocus"
+                                     PasswordChanged="OnBotTokenPasswordChanged" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintTokenMasked}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelChatId}" FontWeight="SemiBold" Margin="4,8,4,0" />
+                        <TextBox x:Name="ChatIdTextBox"
+                                 Height="38"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 VerticalContentAlignment="Center"
+                                 TextChanged="OnTargetTextChanged" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelUserId}" FontWeight="SemiBold" Margin="4,8,4,0" />
+                        <TextBox x:Name="UserIdTextBox"
+                                 Height="38"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 VerticalContentAlignment="Center"
+                                 TextChanged="OnTargetTextChanged" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintOnlyOneTarget}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintUserStartBot}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
+                        <StackPanel Margin="4,8,4,0">
+                            <TextBlock Text="{loc:Loc SettingsHintTokenStorage}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0" />
+                            <TextBlock Text="{loc:Loc SettingsHintTokenProtection}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0" />
+                        </StackPanel>
+
+                        <TextBlock Text="{loc:Loc SettingsLabelHotKey}" FontWeight="SemiBold" Margin="4,8,4,0" />
+
+                        <CheckBox x:Name="EnableHotKeyCheckBox"
+                                  Content="{loc:Loc SettingsEnableHotKey}"
+                                  Margin="4,2,4,0"
+                                  Click="OnHotKeyEnabledClick" />
+
+                        <TextBox x:Name="HotKeyGestureTextBox"
+                                 Height="38"
+                                 VerticalContentAlignment="Center"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 PreviewKeyDown="OnHotKeyGesturePreviewKeyDown"
+                                 ToolTip="{loc:Loc SettingsHotKeyInputTooltip}" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintHotKeyModifiers}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
+                        <TextBlock Text="{loc:Loc SettingsHeadingSync}" FontSize="24" FontWeight="Bold" Margin="4,14,4,6" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelSyncServer}" FontWeight="SemiBold" Margin="4,4,4,0" />
+                        <TextBox x:Name="SyncServerUrlTextBox"
+                                 Height="38"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 VerticalContentAlignment="Center" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelSyncUsername}" FontWeight="SemiBold" Margin="4,8,4,0" />
+                        <TextBox x:Name="SyncUsernameTextBox"
+                                 Height="38"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 VerticalContentAlignment="Center" />
+
+                        <TextBlock Text="{loc:Loc SettingsLabelSyncPassword}" FontWeight="SemiBold" Margin="4,8,4,0" />
+                        <PasswordBox x:Name="SyncPasswordBox"
+                                     Height="38"
+                                     Margin="4,4,4,0"
+                                     Style="{StaticResource RoundedSettingsPasswordBoxStyle}" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintSyncTls}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
+                        <TextBlock x:Name="SyncStatusText"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,4,4,0" />
+
+                        <StackPanel Orientation="Horizontal" Margin="4,8,4,0">
+                            <Button x:Name="SyncRegisterButton"
+                                    Width="124"
+                                    Content="{loc:Loc SettingsButtonSyncRegister}"
+                                    Click="OnSyncRegisterClick" />
+                            <Button x:Name="SyncLoginButton"
+                                    Width="124"
+                                    Content="{loc:Loc SettingsButtonSyncLogin}"
+                                    Click="OnSyncLoginClick" />
+                            <Button x:Name="SyncLogoutButton"
+                                    Width="124"
+                                    Content="{loc:Loc SettingsButtonSyncLogout}"
+                                    Click="OnSyncLogoutClick" />
+                        </StackPanel>
+
+                        <StackPanel Margin="4,8,4,6">
+                            <TextBlock Text="{loc:Loc SettingsLabelStartup}" FontWeight="SemiBold" Margin="0,0,0,2" />
+                            <TextBlock Text="{loc:Loc SettingsHintStartup}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+                                <Button x:Name="StartupToggleButton"
+                                        Width="190"
+                                        Content="{loc:Loc SettingsStartupEnable}"
+                                        Click="OnStartupToggleClick" />
+                                <TextBlock x:Name="StartupStatusText"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0"
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Text="{loc:Loc SettingsStartupStatusOff}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Expander Margin="4,6,4,0"
+                                  IsExpanded="False"
+                                  Foreground="{DynamicResource SecondaryTextBrush}">
+                            <Expander.Header>
+                                <TextBlock Text="{loc:Loc SettingsAboutTitle}" FontWeight="SemiBold" />
+                            </Expander.Header>
+                            <Border Margin="0,6,0,0"
+                                    Padding="10,8"
+                                    BorderBrush="{DynamicResource BorderBrushLight}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    ClipToBounds="True"
+                                    Background="{DynamicResource PanelBackgroundBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="156" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc SettingsAboutNameLabel}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc SettingsAboutNameValue}" FontWeight="SemiBold" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc SettingsAboutDeveloperLabel}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Loc SettingsAboutDeveloperValue}" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc SettingsAboutVersionLabel}" />
+                                    <TextBlock x:Name="AppVersionValueText" Grid.Row="2" Grid.Column="1" />
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc SettingsAboutPlatformLabel}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{loc:Loc SettingsAboutPlatformValue}" TextWrapping="Wrap" />
+
+                                    <TextBlock x:Name="AboutSignatureText"
+                                               Grid.Row="4"
+                                               Grid.Column="0"
+                                               Grid.ColumnSpan="2"
+                                               Text="{loc:Loc SettingsAboutSignature}"
+                                               Margin="0,6,0,0"
+                                               Foreground="{DynamicResource PrimaryTextBrush}"
+                                               FontWeight="SemiBold"
+                                               MouseLeftButtonDown="OnAboutSignatureMouseLeftButtonDown" />
+                                </Grid>
+                            </Border>
+                        </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Grid Grid.Row="1" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="TestButton"
+                                Grid.Column="0"
+                                Content="{loc:Loc SettingsButtonTestTelegram}"
+                                Width="138"
+                                HorizontalAlignment="Left"
+                                Click="OnTestClick" />
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="CancelButton"
+                                    Content="{loc:Loc CommonCancel}"
+                                    Width="102"
+                                    IsCancel="True" />
+                            <Button x:Name="SaveButton"
+                                    Content="{loc:Loc CommonSave}"
+                                    Width="124"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Click="OnSaveClick" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

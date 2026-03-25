@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppName" xml:space="preserve"><value>NNotify</value></data>
+  <data name="AppStartupFailedBody" xml:space="preserve"><value>NNotify не удалось запустить. Подробности в %LOCALAPPDATA%\NNotify\log.txt</value></data>
+  <data name="MainDapiSaveWarningBody" xml:space="preserve"><value>Не удалось сохранить токен: DPAPI недоступен. Токен не был обновлен.</value></data>
+
+  <data name="CommonOk" xml:space="preserve"><value>OK</value></data>
+  <data name="CommonCancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="CommonSave" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="CommonDelete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="CommonEdit" xml:space="preserve"><value>Изменить</value></data>
+  <data name="CommonRefresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="CommonSettings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="CommonAddReminder" xml:space="preserve"><value>Добавить напоминание</value></data>
+  <data name="CommonCheckDataTitle" xml:space="preserve"><value>Проверьте данные</value></data>
+
+  <data name="ActionAck" xml:space="preserve"><value>Подтвердить</value></data>
+  <data name="ActionSnooze5" xml:space="preserve"><value>Отложить 5м</value></data>
+  <data name="ActionSnooze15" xml:space="preserve"><value>Отложить 15м</value></data>
+  <data name="ActionEdit" xml:space="preserve"><value>Изменить</value></data>
+
+  <data name="MainButtonAdd" xml:space="preserve"><value>+ Добавить</value></data>
+  <data name="MainTagline" xml:space="preserve"><value>Напоминания без пропусков</value></data>
+  <data name="MainAlwaysOnTop" xml:space="preserve"><value>Всегда сверху</value></data>
+  <data name="MainDarkTheme" xml:space="preserve"><value>Темная тема</value></data>
+  <data name="MainUpcomingTitle" xml:space="preserve"><value>Ближайшие и активные</value></data>
+  <data name="MainUpcomingSubtitle" xml:space="preserve"><value>Выберите напоминание для быстрых действий снизу</value></data>
+  <data name="MainMissedTitle" xml:space="preserve"><value>Пропущенные при запуске</value></data>
+  <data name="MainMissedSubtitle" xml:space="preserve"><value>Появляются, если время прошло, пока приложение было закрыто</value></data>
+  <data name="MainHistoryTitle" xml:space="preserve"><value>История</value></data>
+  <data name="MainHistorySubtitle" xml:space="preserve"><value>Подтвержденные и удаленные напоминания</value></data>
+  <data name="MainColumnDue" xml:space="preserve"><value>Срок</value></data>
+  <data name="MainColumnPriority" xml:space="preserve"><value>Приоритет</value></data>
+  <data name="MainColumnText" xml:space="preserve"><value>Текст</value></data>
+  <data name="MainColumnStatus" xml:space="preserve"><value>Статус</value></data>
+  <data name="MainColumnEscalation" xml:space="preserve"><value>Эскалация</value></data>
+  <data name="MainColumnWhen" xml:space="preserve"><value>Когда</value></data>
+  <data name="MainColumnResult" xml:space="preserve"><value>Итог</value></data>
+  <data name="MainQuickActionsTitle" xml:space="preserve"><value>Быстрые действия</value></data>
+  <data name="MainHotKeyDisabled" xml:space="preserve"><value>Горячая клавиша: выключена</value></data>
+  <data name="MainHotKeyReadyTemplate" xml:space="preserve"><value>Горячая клавиша: {0}</value></data>
+  <data name="MainHotKeyBusyTemplate" xml:space="preserve"><value>Горячая клавиша: {0} (занята)</value></data>
+  <data name="MainDeleteTooltip" xml:space="preserve"><value>Удаляет выбранное напоминание</value></data>
+  <data name="MainDeleteReminderTitle" xml:space="preserve"><value>Удаление напоминания</value></data>
+  <data name="MainDeleteHistoryTitle" xml:space="preserve"><value>Удаление из истории</value></data>
+  <data name="MainDeleteReminderMessageTemplate" xml:space="preserve"><value>Удалить напоминание &quot;{0}&quot;?</value></data>
+  <data name="MainDeleteHistoryMessageTemplate" xml:space="preserve"><value>Удалить запись &quot;{0}&quot; из истории?</value></data>
+  <data name="MainMenuRepeat" xml:space="preserve"><value>Повторить</value></data>
+
+  <data name="ReminderStatusScheduled" xml:space="preserve"><value>Запланировано</value></data>
+  <data name="ReminderStatusFired" xml:space="preserve"><value>Сработало</value></data>
+  <data name="ReminderStatusAcked" xml:space="preserve"><value>Подтверждено</value></data>
+  <data name="ReminderStatusSnoozed" xml:space="preserve"><value>Отложено</value></data>
+  <data name="ReminderStatusCancelled" xml:space="preserve"><value>Отменено</value></data>
+  <data name="ReminderStatusMissed" xml:space="preserve"><value>Пропущено</value></data>
+
+  <data name="PriorityHigh" xml:space="preserve"><value>Важно</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Средне</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Низко</value></data>
+
+  <data name="AddEditWindowTitleNew" xml:space="preserve"><value>Добавить напоминание</value></data>
+  <data name="AddEditWindowTitleRepeat" xml:space="preserve"><value>Повторить напоминание</value></data>
+  <data name="AddEditWindowTitleEdit" xml:space="preserve"><value>Редактировать напоминание</value></data>
+  <data name="AddEditHeading" xml:space="preserve"><value>Параметры напоминания</value></data>
+  <data name="AddEditLabelText" xml:space="preserve"><value>Текст напоминания</value></data>
+  <data name="AddEditLabelTime" xml:space="preserve"><value>Время</value></data>
+  <data name="AddEditTooltipPickDate" xml:space="preserve"><value>Выберите дату</value></data>
+  <data name="AddEditPlus3" xml:space="preserve"><value>+3 мин</value></data>
+  <data name="AddEditPlus5" xml:space="preserve"><value>+5 мин</value></data>
+  <data name="AddEditPlus10" xml:space="preserve"><value>+10 мин</value></data>
+  <data name="AddEditLabelPriority" xml:space="preserve"><value>Приоритет</value></data>
+  <data name="AddEditValidationEnterText" xml:space="preserve"><value>Введите текст напоминания.</value></data>
+  <data name="AddEditValidationSelectDate" xml:space="preserve"><value>Выберите дату в календаре.</value></data>
+  <data name="AddEditValidationInvalidTime" xml:space="preserve"><value>Некорректное время. Укажите часы 00-23 и минуты 00-59.</value></data>
+  <data name="AddEditValidationPastTime" xml:space="preserve"><value>Похоже, выбранное время уже прошло. Укажите время в будущем.</value></data>
+
+  <data name="SettingsWindowTitle" xml:space="preserve"><value>Настройки</value></data>
+  <data name="SettingsHeadingTelegram" xml:space="preserve"><value>Telegram</value></data>
+  <data name="SettingsLabelBotToken" xml:space="preserve"><value>Токен бота</value></data>
+  <data name="SettingsHintTokenMasked" xml:space="preserve"><value>Токен скрыт маской. Чтобы заменить его, просто начните ввод в этом поле.</value></data>
+  <data name="SettingsLabelChatId" xml:space="preserve"><value>ID чата</value></data>
+  <data name="SettingsLabelUserId" xml:space="preserve"><value>ID пользователя</value></data>
+  <data name="SettingsHintOnlyOneTarget" xml:space="preserve"><value>Заполняется только одно поле: ID чата или ID пользователя.</value></data>
+  <data name="SettingsHintUserStartBot" xml:space="preserve"><value>Для личных сообщений пользователь должен открыть бота и нажать Start.</value></data>
+  <data name="SettingsHintTokenStorage" xml:space="preserve"><value>Токен хранится в %LOCALAPPDATA%\NNotify\settings.json.</value></data>
+  <data name="SettingsHintTokenProtection" xml:space="preserve"><value>Используется DPAPI (ProtectedData, CurrentUser), открытый fallback отключен.</value></data>
+  <data name="SettingsLabelHotKey" xml:space="preserve"><value>Горячая клавиша</value></data>
+  <data name="SettingsEnableHotKey" xml:space="preserve"><value>Включить глобальную горячую клавишу</value></data>
+  <data name="SettingsHotKeyInputTooltip" xml:space="preserve"><value>Кликните сюда и нажмите сочетание, например Ctrl+Y.</value></data>
+  <data name="SettingsHintHotKeyModifiers" xml:space="preserve"><value>Поддерживаются сочетания с модификатором: Ctrl/Shift/Alt/Win + клавиша.</value></data>
+  <data name="SettingsHeadingSync" xml:space="preserve"><value>Учетная запись синхронизации</value></data>
+  <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Адрес сервера</value></data>
+  <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Логин</value></data>
+  <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Пароль</value></data>
+  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Используйте HTTPS. Порт по умолчанию для сервера синхронизации: 5334.</value></data>
+  <data name="SettingsButtonSyncRegister" xml:space="preserve"><value>Регистрация</value></data>
+  <data name="SettingsButtonSyncLogin" xml:space="preserve"><value>Войти</value></data>
+  <data name="SettingsButtonSyncLogout" xml:space="preserve"><value>Выйти</value></data>
+  <data name="SettingsSyncStatusInvalidUsername" xml:space="preserve"><value>Логин должен содержать минимум 3 символа.</value></data>
+  <data name="SettingsSyncStatusInvalidPassword" xml:space="preserve"><value>Пароль должен содержать минимум 8 символов.</value></data>
+  <data name="SettingsSyncStatusEnterUsername" xml:space="preserve"><value>Введите логин для учетной записи.</value></data>
+  <data name="SettingsSyncStatusEnterPassword" xml:space="preserve"><value>Введите пароль для учетной записи.</value></data>
+  <data name="SettingsSyncStatusTokenSaveFailed" xml:space="preserve"><value>Не удалось безопасно сохранить токены сессии (DPAPI).</value></data>
+  <data name="SettingsSyncStatusLoggedIn" xml:space="preserve"><value>Вход выполнен успешно.</value></data>
+  <data name="SettingsSyncStatusLoggedOut" xml:space="preserve"><value>Сессия завершена, выполнен выход.</value></data>
+  <data name="SettingsSyncStatusSessionActive" xml:space="preserve"><value>Сессия активна. Синхронизация доступна.</value></data>
+  <data name="SettingsSyncStatusSessionMissing" xml:space="preserve"><value>Сессия не активна. Выполните вход.</value></data>
+  <data name="SettingsSyncStatusEnterServer" xml:space="preserve"><value>Введите адрес сервера синхронизации.</value></data>
+  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Некорректный адрес сервера. Пример: https://server.example.com:5334</value></data>
+  <data name="SettingsSyncStatusHttpsRequired" xml:space="preserve"><value>Разрешен только HTTPS для безопасного подключения.</value></data>
+  <data name="SettingsLabelStartup" xml:space="preserve"><value>Автозапуск с Windows</value></data>
+  <data name="SettingsHintStartup" xml:space="preserve"><value>Запускает NNotify автоматически после входа в Windows (без установки отдельной службы).</value></data>
+  <data name="SettingsStartupEnable" xml:space="preserve"><value>Включить автозапуск</value></data>
+  <data name="SettingsStartupDisable" xml:space="preserve"><value>Удалить автозапуск</value></data>
+  <data name="SettingsStartupStatusOn" xml:space="preserve"><value>Статус: включен</value></data>
+  <data name="SettingsStartupStatusOff" xml:space="preserve"><value>Статус: выключен</value></data>
+  <data name="SettingsButtonTestTelegram" xml:space="preserve"><value>Тест Telegram</value></data>
+  <data name="SettingsDialogCheckDataEnterToken" xml:space="preserve"><value>Введите токен бота или сохраните существующий токен.</value></data>
+  <data name="SettingsDialogCheckDataEnterTarget" xml:space="preserve"><value>Укажите ID чата или ID пользователя.</value></data>
+  <data name="SettingsDialogTestSentTitle" xml:space="preserve"><value>Тест отправлен</value></data>
+  <data name="SettingsDialogTestSentBody" xml:space="preserve"><value>Тестовое сообщение успешно отправлено.</value></data>
+  <data name="SettingsDialogTestFailedTitle" xml:space="preserve"><value>Тест не отправлен</value></data>
+  <data name="SettingsDialogTestFailedBody" xml:space="preserve"><value>Проверьте токен и выбранный ID. Для личных сообщений пользователь должен нажать Start у бота.</value></data>
+  <data name="SettingsDialogSendErrorTitle" xml:space="preserve"><value>Ошибка отправки</value></data>
+  <data name="SettingsDialogSendErrorBody" xml:space="preserve"><value>Не удалось отправить тестовое сообщение. Подробности в log.txt.</value></data>
+  <data name="SettingsDialogInvalidHotKeyBody" xml:space="preserve"><value>Введите корректное сочетание для горячей клавиши, например Ctrl+Y.</value></data>
+  <data name="SettingsDialogOperationNotDoneTitle" xml:space="preserve"><value>Операция не выполнена</value></data>
+  <data name="SettingsDialogStartupUpdatedTitle" xml:space="preserve"><value>Автозапуск обновлен</value></data>
+  <data name="SettingsDialogStartupEnabledBody" xml:space="preserve"><value>NNotify теперь будет запускаться автоматически после входа в Windows.</value></data>
+  <data name="SettingsDialogStartupDisabledBody" xml:space="preserve"><value>Автозапуск NNotify отключен.</value></data>
+  <data name="SettingsTooltipClearChatId" xml:space="preserve"><value>Очистите ID чата, чтобы ввести ID пользователя.</value></data>
+  <data name="SettingsTooltipClearUserId" xml:space="preserve"><value>Очистите ID пользователя, чтобы ввести ID чата.</value></data>
+  <data name="SettingsTestHeader" xml:space="preserve"><value>[TEST] NNotify</value></data>
+  <data name="SettingsTestAtTemplate" xml:space="preserve"><value>Проверка отправки: {0:dd.MM.yyyy HH:mm:ss}</value></data>
+  <data name="SettingsAboutTitle" xml:space="preserve"><value>О программе</value></data>
+  <data name="SettingsAboutNameLabel" xml:space="preserve"><value>Программа:</value></data>
+  <data name="SettingsAboutNameValue" xml:space="preserve"><value>NNotify</value></data>
+  <data name="SettingsAboutDeveloperLabel" xml:space="preserve"><value>Разработчик:</value></data>
+  <data name="SettingsAboutDeveloperValue" xml:space="preserve"><value>N.Neverov</value></data>
+  <data name="SettingsAboutVersionLabel" xml:space="preserve"><value>Версия:</value></data>
+  <data name="SettingsAboutMottoLabel" xml:space="preserve"><value>Девиз:</value></data>
+  <data name="SettingsAboutMottoValue" xml:space="preserve"><value>NNotify: No More 'Oops'</value></data>
+  <data name="SettingsAboutPlatformLabel" xml:space="preserve"><value>Технологии:</value></data>
+  <data name="SettingsAboutPlatformValue" xml:space="preserve"><value>.NET 8, WPF, SQLite</value></data>
+  <data name="SettingsAboutSignature" xml:space="preserve"><value>NNotify: No More 'Oops' ⏰</value></data>
+
+  <data name="ConfirmDefaultTitle" xml:space="preserve"><value>Подтверждение</value></data>
+  <data name="ConfirmDefaultQuestionTitle" xml:space="preserve"><value>Подтвердите действие</value></data>
+  <data name="ConfirmDefaultDelete" xml:space="preserve"><value>Удалить</value></data>
+
+  <data name="OverlayWindowTitle" xml:space="preserve"><value>Напоминание</value></data>
+  <data name="OverlayHeaderTriggered" xml:space="preserve"><value>Сработало напоминание</value></data>
+  <data name="OverlayDueTemplate" xml:space="preserve"><value>Срок: {0}</value></data>
+  <data name="OverlayCountdownEscalationTemplate" xml:space="preserve"><value>Эскалация в Telegram через {0:00}с</value></data>
+  <data name="OverlayCountdownAutoCloseTemplate" xml:space="preserve"><value>Автозакрытие через {0:00}с</value></data>
+
+  <data name="TrayQuickActions" xml:space="preserve"><value>Быстрые действия</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Открыть</value></data>
+  <data name="TrayAddReminder" xml:space="preserve"><value>Добавить напоминание</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Выход</value></data>
+
+  <data name="TelegramHeaderHigh" xml:space="preserve"><value>Напоминание высокой важности 🚨</value></data>
+  <data name="TelegramHeaderMedium" xml:space="preserve"><value>Напоминание средней важности 🔔</value></data>
+  <data name="TelegramHeaderLow" xml:space="preserve"><value>Напоминание низкой важности 💡</value></data>
+  <data name="TelegramScheduledPrefix" xml:space="preserve"><value>Запланировано:</value></data>
+  <data name="TelegramUntitled" xml:space="preserve"><value>Без названия</value></data>
+
+  <data name="StartupErrorProcessPath" xml:space="preserve"><value>Не удалось определить путь к NNotify.exe.</value></data>
+  <data name="StartupErrorRegistryKey" xml:space="preserve"><value>Не удалось открыть раздел автозапуска в реестре.</value></data>
+  <data name="StartupErrorEnable" xml:space="preserve"><value>Не удалось включить автозапуск. Подробности в log.txt.</value></data>
+  <data name="StartupErrorDisable" xml:space="preserve"><value>Не удалось отключить автозапуск. Подробности в log.txt.</value></data>
+</root>
+

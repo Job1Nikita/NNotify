@@ -1,0 +1,37 @@
+﻿# Build
+bin/
+obj/
+artifacts/
+publish/
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.cache
+*.tmp
+.DS_Store
+
+# Runtime local files
+settings.json
+settings.*.json
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pdb
+
+# Secrets / certs
+.env
+*.pem
+*.key
+*.pfx
+*.snk
+
+# Server local
+Server/.env
+Server/node_modules/
+Server/dist/
+npm-debug.log*
