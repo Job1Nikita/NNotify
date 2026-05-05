@@ -642,7 +642,7 @@
                                     Background="{DynamicResource PanelBackgroundBrush}"
                                     BorderBrush="{DynamicResource BorderBrushLight}"
                                     BorderThickness="1"
-                                    MouseLeftButtonDown="OnDueDateBorderMouseLeftButtonDown">
+                                    MouseLeftButtonUp="OnDueDateBorderMouseLeftButtonUp">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />

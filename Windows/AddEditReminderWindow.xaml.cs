@@ -195,7 +195,7 @@ public partial class AddEditReminderWindow : Window
         UpdateDueDateText();
     }
 
-    private void OnDueDateBorderMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void OnDueDateBorderMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         ToggleDueDatePopup();
         e.Handled = true;
