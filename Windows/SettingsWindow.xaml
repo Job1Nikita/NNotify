@@ -219,6 +219,18 @@
                                      Margin="4,4,4,0"
                                      Style="{StaticResource RoundedSettingsPasswordBoxStyle}" />
 
+                        <TextBlock Text="{loc:Loc SettingsLabelSyncTelegramUserId}" FontWeight="SemiBold" Margin="4,8,4,0" />
+                        <TextBox x:Name="SyncTelegramUserIdTextBox"
+                                 Height="38"
+                                 Margin="4,4,4,0"
+                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
+                                 VerticalContentAlignment="Center" />
+
+                        <TextBlock Text="{loc:Loc SettingsHintSyncTelegramUserId}"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="4,2,4,0" />
+
                         <TextBlock Text="{loc:Loc SettingsHintSyncTls}"
                                    Foreground="{DynamicResource SecondaryTextBrush}"
                                    TextWrapping="Wrap"

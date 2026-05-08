@@ -66,6 +66,7 @@
   <data name="ReminderStatusSnoozed" xml:space="preserve"><value>Verschoben</value></data>
   <data name="ReminderStatusCancelled" xml:space="preserve"><value>Abgebrochen</value></data>
   <data name="ReminderStatusMissed" xml:space="preserve"><value>Verpasst</value></data>
+  <data name="ReminderDuplicateCandidate" xml:space="preserve"><value>mögliches Duplikat</value></data>
 
   <data name="PriorityHigh" xml:space="preserve"><value>Hoch</value></data>
   <data name="PriorityMedium" xml:space="preserve"><value>Mittel</value></data>
@@ -105,10 +106,35 @@
   <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Serveradresse</value></data>
   <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Benutzername</value></data>
   <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Passwort</value></data>
-  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Bitte HTTPS verwenden. Standard-Port für den Sync-Server: 5334.</value></data>
+  <data name="SettingsLabelSyncTelegramUserId" xml:space="preserve"><value>Benutzer-ID für Benachrichtigungen</value></data>
+  <data name="SettingsHintSyncTelegramUserId" xml:space="preserve"><value>Optional. Wird vom Server für Telegram-Eskalationen von Erinnerungen verwendet.</value></data>
+  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Bitte HTTPS verwenden. Standard-Port für den Sync-Server: 443.</value></data>
   <data name="SettingsButtonSyncRegister" xml:space="preserve"><value>Registrieren</value></data>
   <data name="SettingsButtonSyncLogin" xml:space="preserve"><value>Anmelden</value></data>
   <data name="SettingsButtonSyncLogout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="SyncRegisterWindowTitle" xml:space="preserve"><value>Kontoregistrierung</value></data>
+  <data name="SyncRegisterHeading" xml:space="preserve"><value>Registrierungsanfrage</value></data>
+  <data name="SyncRegisterLabelServer" xml:space="preserve"><value>Serveradresse</value></data>
+  <data name="SyncRegisterHintServerExample" xml:space="preserve"><value>Beispiel: nnotify.mysite.com oder https://nnotify.mysite.com:443</value></data>
+  <data name="SyncRegisterLabelUsername" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="SyncRegisterHintUsernameExample" xml:space="preserve"><value>Beispiel: max.mustermann (mindestens 3 Zeichen).</value></data>
+  <data name="SyncRegisterLabelPassword" xml:space="preserve"><value>Passwort</value></data>
+  <data name="SyncRegisterHintPasswordRules" xml:space="preserve"><value>Die Passwortregeln hängen vom Server ab. Bei Ablehnung bitte den Administrator nach den Anforderungen fragen.</value></data>
+  <data name="SyncRegisterButtonSubmit" xml:space="preserve"><value>Anfrage senden</value></data>
+  <data name="SyncRegisterStatusSubmitted" xml:space="preserve"><value>Registrierungsanfrage gesendet. Bitte auf Freigabe durch den Administrator warten.</value></data>
+  <data name="SyncRegisterStatusUserExists" xml:space="preserve"><value>Ein Benutzer mit diesem Login existiert bereits.</value></data>
+  <data name="SyncRegisterStatusTimeout" xml:space="preserve"><value>Zeitüberschreitung bei der Verbindung zum Server.</value></data>
+  <data name="SyncRegisterStatusRequestFailed" xml:space="preserve"><value>Registrierungsanfrage konnte nicht gesendet werden. Serveradresse und TLS-Zertifikat prüfen.</value></data>
+  <data name="SyncRegisterStatusInvalidCredentialsFormat" xml:space="preserve"><value>Bitte Benutzername- und Passwortformat prüfen.</value></data>
+  <data name="SyncRegisterStatusInvalidUsernameFormat" xml:space="preserve"><value>Ungültiges Login-Format. Verwenden Sie 3-32 Zeichen: lateinische Buchstaben, Ziffern, Punkt, Unterstrich oder Bindestrich.</value></data>
+  <data name="SyncRegisterStatusWeakPassword" xml:space="preserve"><value>Passwort ist zu schwach. Bitte Passwortregeln beim Serveradministrator erfragen.</value></data>
+  <data name="SyncLoginStatusInvalidCredentials" xml:space="preserve"><value>Ungültiger Benutzername oder Passwort.</value></data>
+  <data name="SyncLoginStatusPendingApproval" xml:space="preserve"><value>Zugriff verweigert. Das Konto wartet auf Freigabe durch den Administrator.</value></data>
+  <data name="SyncLoginStatusAccessDenied" xml:space="preserve"><value>Zugriff verweigert. Bitte den Serveradministrator kontaktieren.</value></data>
+  <data name="SyncLoginStatusRateLimited" xml:space="preserve"><value>Zu viele fehlgeschlagene Anmeldeversuche. Bitte später erneut versuchen.</value></data>
+  <data name="SyncLoginStatusTimeout" xml:space="preserve"><value>Zeitüberschreitung bei der Verbindung zum Server.</value></data>
+  <data name="SyncLoginStatusRequestFailed" xml:space="preserve"><value>Anmeldung fehlgeschlagen. Serveradresse und TLS-Zertifikat prüfen.</value></data>
+  <data name="SyncCommonStatusUnknownError" xml:space="preserve"><value>Synchronisierung konnte nicht abgeschlossen werden. Einstellungen prüfen und erneut versuchen.</value></data>
   <data name="SettingsSyncStatusInvalidUsername" xml:space="preserve"><value>Der Benutzername muss mindestens 3 Zeichen enthalten.</value></data>
   <data name="SettingsSyncStatusInvalidPassword" xml:space="preserve"><value>Das Passwort muss mindestens 8 Zeichen enthalten.</value></data>
   <data name="SettingsSyncStatusEnterUsername" xml:space="preserve"><value>Bitte Benutzernamen eingeben.</value></data>
@@ -119,7 +145,7 @@
   <data name="SettingsSyncStatusSessionActive" xml:space="preserve"><value>Sitzung ist aktiv. Synchronisation ist verfügbar.</value></data>
   <data name="SettingsSyncStatusSessionMissing" xml:space="preserve"><value>Keine aktive Sitzung. Bitte anmelden.</value></data>
   <data name="SettingsSyncStatusEnterServer" xml:space="preserve"><value>Bitte Sync-Serveradresse eingeben.</value></data>
-  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Ungültige Serveradresse. Beispiel: https://server.example.com:5334</value></data>
+  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Ungültige Serveradresse. Beispiel: https://server.example.com:443</value></data>
   <data name="SettingsSyncStatusHttpsRequired" xml:space="preserve"><value>Für eine sichere Verbindung ist nur HTTPS erlaubt.</value></data>
   <data name="SettingsLabelStartup" xml:space="preserve"><value>Autostart mit Windows</value></data>
   <data name="SettingsHintStartup" xml:space="preserve"><value>Startet NNotify automatisch nach der Windows-Anmeldung (ohne separaten Dienst).</value></data>
@@ -183,4 +209,5 @@
   <data name="StartupErrorEnable" xml:space="preserve"><value>Autostart konnte nicht aktiviert werden. Details in log.txt.</value></data>
   <data name="StartupErrorDisable" xml:space="preserve"><value>Autostart konnte nicht deaktiviert werden. Details in log.txt.</value></data>
 </root>
+
 

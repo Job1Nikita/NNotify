@@ -50,7 +50,7 @@ NNotify — десктопное приложение напоминаний д�
 ### Быстрый запуск (из исходников)
 
 ```powershell
-cd C:\NNotify_v3\NNotify
+cd <repo-root>
 dotnet restore
 dotnet run
 ```
@@ -59,7 +59,7 @@ dotnet run
 ### Сборка и публикация
 
 ```powershell
-cd C:\NNotify_v3\NNotify
+cd <repo-root>
 dotnet build NNotify.csproj -c Release
 .\Publish-SingleExe.ps1
 ```
@@ -131,7 +131,7 @@ It helps you avoid missed tasks with local scheduling, overlay reminders, and op
 ### Quick Start (from source)
 
 ```powershell
-cd C:\NNotify_v3\NNotify
+cd <repo-root>
 dotnet restore
 dotnet run
 ```
@@ -140,7 +140,7 @@ dotnet run
 ### Build and Publish
 
 ```powershell
-cd C:\NNotify_v3\NNotify
+cd <repo-root>
 dotnet build NNotify.csproj -c Release
 .\Publish-SingleExe.ps1
 ```
@@ -163,3 +163,15 @@ Output:
 - Settings file: `%LOCALAPPDATA%\NNotify\settings.json`
 - Sensitive values (e.g., Telegram token) are protected with DPAPI (`CurrentUser`).
 - Logs: `%LOCALAPPDATA%\NNotify\log.txt`
+
+---
+
+## Server Auth Module (Preview)
+
+A separate secure auth module is now included in `server/` for multi-device account login flow:
+- client registration (`pending approval`)
+- login / logout
+- optional Telegram-based admin approval
+
+See: `server/README.md`
+

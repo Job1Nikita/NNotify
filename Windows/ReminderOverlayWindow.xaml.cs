@@ -54,6 +54,11 @@ public partial class ReminderOverlayWindow : Window
         return OverlayAction.Timeout;
     }
 
+    public void DismissAsSynced()
+    {
+        Complete(OverlayAction.Edited);
+    }
+
     private void OnAckClick(object sender, RoutedEventArgs e)
     {
         Complete(OverlayAction.Ack);

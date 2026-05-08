@@ -175,6 +175,7 @@ public partial class MainWindow : Window
             app.Settings.HotKeyGesture,
             app.Settings.SyncServerUrl ?? string.Empty,
             app.Settings.SyncUsername ?? string.Empty,
+            app.Settings.SyncTelegramUserId ?? app.Settings.TelegramUserId ?? string.Empty,
             hasStoredSyncSession)
         {
             Owner = this
@@ -207,8 +208,10 @@ public partial class MainWindow : Window
         app.Settings.HotKeyGesture = dialog.HotKeyGesture;
         app.Settings.SyncServerUrl = string.IsNullOrWhiteSpace(dialog.SyncServerUrl) ? null : dialog.SyncServerUrl;
         app.Settings.SyncUsername = string.IsNullOrWhiteSpace(dialog.SyncUsername) ? null : dialog.SyncUsername;
+        app.Settings.SyncTelegramUserId = string.IsNullOrWhiteSpace(dialog.SyncTelegramUserId) ? null : dialog.SyncTelegramUserId;
 
         app.SaveSettings();
+        app.SyncReminderService.SignalSync();
         ApplyHotKeyConfiguration();
 
         if (!encrypted)
@@ -244,6 +247,7 @@ public partial class MainWindow : Window
 
         var app = GetApp();
         await app.Repository.AckAsync(selected.Id, DateTimeOffset.UtcNow);
+        app.SyncReminderService.SignalSync();
         app.Scheduler.SignalReschedule();
         await ReloadDataAsync();
     }
@@ -258,6 +262,7 @@ public partial class MainWindow : Window
 
         var app = GetApp();
         await app.Repository.SnoozeAsync(selected.Id, DateTimeOffset.UtcNow.AddMinutes(5));
+        app.SyncReminderService.SignalSync();
         app.Scheduler.SignalReschedule();
         await ReloadDataAsync();
     }
@@ -272,6 +277,7 @@ public partial class MainWindow : Window
 
         var app = GetApp();
         await app.Repository.SnoozeAsync(selected.Id, DateTimeOffset.UtcNow.AddMinutes(15));
+        app.SyncReminderService.SignalSync();
         app.Scheduler.SignalReschedule();
         await ReloadDataAsync();
     }
@@ -755,6 +761,7 @@ public partial class MainWindow : Window
             await app.Repository.CancelAsync(selected.Id, DateTimeOffset.UtcNow);
         }
 
+        app.SyncReminderService.SignalSync();
         app.Scheduler.SignalReschedule();
         await ReloadDataAsync();
     }

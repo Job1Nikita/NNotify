@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Reflection;
 using System.IO;
@@ -41,6 +41,7 @@ public partial class SettingsWindow : Window
         string hotKeyGesture,
         string syncServerUrl,
         string syncUsername,
+        string syncTelegramUserId,
         bool hasStoredSyncSession)
     {
         InitializeComponent();
@@ -58,6 +59,7 @@ public partial class SettingsWindow : Window
             : hotKeyGesture.Trim();
         SyncServerUrlTextBox.Text = syncServerUrl;
         SyncUsernameTextBox.Text = syncUsername;
+        SyncTelegramUserIdTextBox.Text = syncTelegramUserId;
         _hasStoredSyncSession = hasStoredSyncSession;
 
         if (!string.IsNullOrWhiteSpace(ChatIdTextBox.Text) && !string.IsNullOrWhiteSpace(UserIdTextBox.Text))
@@ -105,6 +107,7 @@ public partial class SettingsWindow : Window
     public string UserId => UserIdTextBox.Text.Trim();
     public string SyncServerUrl => SyncServerUrlTextBox.Text.Trim();
     public string SyncUsername => SyncUsernameTextBox.Text.Trim();
+    public string SyncTelegramUserId => SyncTelegramUserIdTextBox.Text.Trim();
     public bool HotKeyEnabled => EnableHotKeyCheckBox.IsChecked == true;
     public string HotKeyGesture => string.IsNullOrWhiteSpace(HotKeyGestureTextBox.Text)
         ? HotKeyBinding.DefaultGesture
@@ -256,40 +259,26 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private async void OnSyncRegisterClick(object sender, RoutedEventArgs e)
+    private void OnSyncRegisterClick(object sender, RoutedEventArgs e)
     {
-        if (!TryResolveSyncServerUri(out var serverBaseUri))
+        var registerDialog = new SyncRegisterWindow(SyncServerUrl, SyncUsername)
         {
-            return;
-        }
+            Owner = this
+        };
 
-        var username = SyncUsername;
-        if (string.IsNullOrWhiteSpace(username) || username.Length < 3)
+        if (registerDialog.ShowDialog() != true || registerDialog.ServerBaseUri is null)
         {
-            SetSyncStatus(Loc.Text("SettingsSyncStatusInvalidUsername"), isError: true);
-            return;
-        }
-
-        var password = SyncPasswordBox.Password.Trim();
-        if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-        {
-            SetSyncStatus(Loc.Text("SettingsSyncStatusInvalidPassword"), isError: true);
             return;
         }
 
         var app = (App)System.Windows.Application.Current;
-        SetSyncBusyState(true);
-        try
-        {
-            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-            var result = await app.SyncAuthService.RegisterAsync(serverBaseUri, username, password, timeoutCts.Token);
-            SetSyncStatus(result.Message, isError: !result.Success);
-            PersistSyncIdentityToSettings(app, serverBaseUri, username);
-        }
-        finally
-        {
-            SetSyncBusyState(false);
-        }
+        var serverBaseUri = registerDialog.ServerBaseUri;
+        var username = registerDialog.Username;
+
+        SyncServerUrlTextBox.Text = serverBaseUri.GetLeftPart(UriPartial.Authority);
+        SyncUsernameTextBox.Text = username;
+        SetSyncStatus(registerDialog.SuccessMessage ?? Loc.Text("SyncRegisterStatusSubmitted"), isError: false, useAccent: true);
+        PersistSyncIdentityToSettings(app, serverBaseUri, username);
     }
 
     private async void OnSyncLoginClick(object sender, RoutedEventArgs e)
@@ -331,7 +320,7 @@ public partial class SettingsWindow : Window
 
             if (!result.Success || string.IsNullOrWhiteSpace(result.AccessToken) || string.IsNullOrWhiteSpace(result.RefreshToken))
             {
-                SetSyncStatus(result.Message, isError: true);
+                SetSyncStatus(LocalizeSyncAuthMessage(result.Message), isError: true);
                 return;
             }
 
@@ -348,6 +337,8 @@ public partial class SettingsWindow : Window
             }
 
             PersistSyncIdentityToSettings(app, serverBaseUri, username);
+            await app.SyncReminderService.EnsureInitialLocalPublishAsync();
+            app.SyncReminderService.SignalSync();
             app.SaveSettings();
             _hasStoredSyncSession = true;
             SyncPasswordBox.Password = string.Empty;
@@ -376,6 +367,8 @@ public partial class SettingsWindow : Window
             }
 
             app.SettingsService.ClearSyncSession(app.Settings);
+            app.Settings.SyncInitialLocalPublishCompleted = false;
+            app.Settings.SyncLastPulledChangeUtc = 0;
             app.SaveSettings();
             _hasStoredSyncSession = false;
             SetSyncStatus(Loc.Text("SettingsSyncStatusLoggedOut"), isError: false);
@@ -608,7 +601,7 @@ public partial class SettingsWindow : Window
 
         if (uriBuilder.Port <= 0)
         {
-            uriBuilder.Port = 5334;
+            uriBuilder.Port = 443;
         }
 
         serverBaseUri = uriBuilder.Uri;
@@ -768,4 +761,45 @@ public partial class SettingsWindow : Window
 
         dialog.ShowDialog();
     }
+
+    private static string LocalizeSyncAuthMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return Loc.Text("SyncCommonStatusUnknownError");
+        }
+
+        if (string.Equals(message, "Invalid username or password.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusInvalidCredentials");
+        }
+
+        if (string.Equals(message, "Access denied. Account is pending admin approval.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusPendingApproval");
+        }
+
+        if (string.Equals(message, "Access denied. Contact your server administrator.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusAccessDenied");
+        }
+
+        if (string.Equals(message, "Too many failed attempts. Try again later.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusRateLimited");
+        }
+
+        if (string.Equals(message, "Connection timeout.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusTimeout");
+        }
+
+        if (string.Equals(message, "Login request failed. Check server URL and TLS certificate.", StringComparison.Ordinal))
+        {
+            return Loc.Text("SyncLoginStatusRequestFailed");
+        }
+
+        return Loc.Text("SyncCommonStatusUnknownError");
+    }
 }
+

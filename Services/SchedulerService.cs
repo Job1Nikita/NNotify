@@ -202,6 +202,11 @@ public sealed class SchedulerService : IDisposable
         try
         {
             var settings = _settingsAccessor();
+            if (!string.IsNullOrWhiteSpace(settings.SyncRefreshTokenEncrypted))
+            {
+                return;
+            }
+
             var botToken = _settingsService.GetBotToken(settings);
             var targetId = ResolveTelegramTargetId(settings);
 

@@ -160,6 +160,56 @@ public sealed class SyncAuthService
         }
     }
 
+    public async Task<SyncLoginResult> RefreshAsync(
+        Uri serverBaseUri,
+        string refreshToken,
+        string deviceId,
+        string deviceName,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = new Uri(serverBaseUri, "/v1/auth/refresh");
+        var payload = new RefreshRequest
+        {
+            RefreshToken = refreshToken,
+            DeviceId = deviceId,
+            DeviceName = deviceName
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, payload, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new SyncLoginResult(false, "Invalid session token.");
+            }
+
+            var refreshResponse = await response.Content.ReadFromJsonAsync<LoginResponse>(JsonOptions, cancellationToken);
+            if (refreshResponse is null ||
+                string.IsNullOrWhiteSpace(refreshResponse.AccessToken) ||
+                string.IsNullOrWhiteSpace(refreshResponse.RefreshToken))
+            {
+                return new SyncLoginResult(false, "Server returned invalid login response.");
+            }
+
+            var expiresAt = DateTimeOffset.UtcNow.AddSeconds(
+                refreshResponse.AccessTokenExpiresInSeconds > 0
+                    ? refreshResponse.AccessTokenExpiresInSeconds
+                    : 900);
+
+            return new SyncLoginResult(
+                true,
+                "Signed in successfully.",
+                AccessToken: refreshResponse.AccessToken,
+                RefreshToken: refreshResponse.RefreshToken,
+                AccessTokenExpiresAtUtc: expiresAt);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ErrorLogger.Log("Sync refresh request failed", ex);
+            return new SyncLoginResult(false, "Login request failed. Check server URL and TLS certificate.");
+        }
+    }
+
     private static async Task<string?> TryReadErrorMessageAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         try
@@ -197,6 +247,13 @@ public sealed class SyncAuthService
     {
         public string RefreshToken { get; set; } = string.Empty;
         public string DeviceId { get; set; } = string.Empty;
+    }
+
+    private sealed class RefreshRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
+        public string DeviceId { get; set; } = string.Empty;
+        public string DeviceName { get; set; } = string.Empty;
     }
 
     private sealed class LoginResponse

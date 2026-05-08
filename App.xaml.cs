@@ -1,6 +1,8 @@
 ﻿using System.Media;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Win32;
 using NNotify.Data;
@@ -33,12 +35,15 @@ public partial class App : System.Windows.Application
     private CancellationTokenSource? _singleInstanceSignalCts;
     private Task? _singleInstanceSignalTask;
     private bool _pendingExternalShowRequest;
+    private AddEditReminderWindow? _activeAddReminderDialog;
+    private readonly Dictionary<string, ReminderOverlayWindow> _activeOverlays = [];
 
     public ReminderRepository Repository { get; private set; } = null!;
     public SettingsService SettingsService { get; private set; } = null!;
     public StartupRegistrationService StartupRegistrationService { get; private set; } = null!;
     public TelegramService TelegramService { get; private set; } = null!;
     public SyncAuthService SyncAuthService { get; private set; } = null!;
+    public SyncReminderService SyncReminderService { get; private set; } = null!;
     public SchedulerService Scheduler { get; private set; } = null!;
     public AppSettings Settings { get; private set; } = new();
     public MainWindow? MainAppWindow { get; private set; }
@@ -71,6 +76,8 @@ public partial class App : System.Windows.Application
 
             TelegramService = new TelegramService();
             SyncAuthService = new SyncAuthService();
+            SyncReminderService = new SyncReminderService(Repository, SettingsService, SyncAuthService, () => Settings, SaveSettings);
+            SyncReminderService.RemoteRemindersApplied += OnRemoteRemindersApplied;
             Scheduler = new SchedulerService(Repository, TelegramService, SettingsService, () => Settings);
             Scheduler.ReminderDueHandlerAsync = ShowReminderOverlayAsync;
             Scheduler.RemindersChanged += OnSchedulerRemindersChanged;
@@ -91,6 +98,7 @@ public partial class App : System.Windows.Application
             SystemEvents.TimeChanged += OnSystemTimeChanged;
 
             Scheduler.Start();
+            SyncReminderService.Start();
         }
         catch (Exception ex)
         {
@@ -106,9 +114,26 @@ public partial class App : System.Windows.Application
 
     public async Task AddReminderInteractiveAsync(Window? owner = null)
     {
+        var ownsActiveDialogSlot = false;
         try
         {
+            if (_activeAddReminderDialog is not null)
+            {
+                BringWindowToFront(_activeAddReminderDialog);
+                return;
+            }
+
             var dialog = new AddEditReminderWindow();
+            _activeAddReminderDialog = dialog;
+            ownsActiveDialogSlot = true;
+            dialog.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_activeAddReminderDialog, dialog))
+                {
+                    _activeAddReminderDialog = null;
+                }
+            };
+
             var dialogOwner = owner;
             if (dialogOwner is null &&
                 MainAppWindow is { IsVisible: true, WindowState: not WindowState.Minimized })
@@ -116,9 +141,20 @@ public partial class App : System.Windows.Application
                 dialogOwner = MainAppWindow;
             }
 
+            var shouldForceForeground = dialogOwner is null;
             if (dialogOwner is not null)
             {
                 dialog.Owner = dialogOwner;
+            }
+            else
+            {
+                dialog.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+
+            if (shouldForceForeground)
+            {
+                dialog.Topmost = true;
+                dialog.Loaded += (_, _) => BringWindowToFront(dialog);
             }
 
             if (dialog.ShowDialog() != true || dialog.EditedReminder is null)
@@ -127,12 +163,20 @@ public partial class App : System.Windows.Application
             }
 
             await Repository.AddReminderAsync(dialog.EditedReminder);
+            SyncReminderService.SignalSync();
             Scheduler.SignalReschedule();
             await RefreshMainWindowAsync();
         }
         catch (Exception ex)
         {
             ErrorLogger.Log("Failed to add reminder", ex);
+        }
+        finally
+        {
+            if (ownsActiveDialogSlot)
+            {
+                _activeAddReminderDialog = null;
+            }
         }
     }
 
@@ -159,6 +203,7 @@ public partial class App : System.Windows.Application
             }
 
             await Repository.AddReminderAsync(dialog.EditedReminder);
+            SyncReminderService.SignalSync();
             Scheduler.SignalReschedule();
             await RefreshMainWindowAsync();
         }
@@ -184,6 +229,7 @@ public partial class App : System.Windows.Application
             }
 
             await Repository.UpdateReminderAsync(dialog.EditedReminder);
+            SyncReminderService.SignalSync();
             Scheduler.SignalReschedule();
             await RefreshMainWindowAsync();
             return true;
@@ -217,6 +263,32 @@ public partial class App : System.Windows.Application
         MainAppWindow.Topmost = true;
         MainAppWindow.Activate();
         MainAppWindow.Topmost = Settings.MainWindowTopmost;
+    }
+
+    private static void BringWindowToFront(Window window)
+    {
+        if (!window.IsVisible)
+        {
+            return;
+        }
+
+        if (window.WindowState == WindowState.Minimized)
+        {
+            window.WindowState = WindowState.Normal;
+        }
+
+        var keepTopmost = window.Topmost;
+        window.Topmost = true;
+        window.Activate();
+        window.Focus();
+
+        var handle = new WindowInteropHelper(window).Handle;
+        if (handle != IntPtr.Zero)
+        {
+            SetForegroundWindow(handle);
+        }
+
+        window.Topmost = keepTopmost;
     }
 
     public void SetMainWindowTopmost(bool isTopmost)
@@ -411,6 +483,11 @@ public partial class App : System.Windows.Application
                 await Scheduler.StopAsync();
             }
 
+            if (SyncReminderService is not null)
+            {
+                await SyncReminderService.StopAsync();
+            }
+
             MainAppWindow?.Close();
         }
         catch (Exception ex)
@@ -443,6 +520,12 @@ public partial class App : System.Windows.Application
             {
                 Scheduler.StopAsync().GetAwaiter().GetResult();
                 Scheduler.Dispose();
+            }
+
+            if (SyncReminderService is not null)
+            {
+                SyncReminderService.StopAsync().GetAwaiter().GetResult();
+                SyncReminderService.Dispose();
             }
         }
         catch (Exception ex)
@@ -559,6 +642,15 @@ public partial class App : System.Windows.Application
             reminder,
             async r => await OpenEditReminderDialogAsync(r, overlay),
             IsTelegramEscalationConfigured());
+
+        _activeOverlays[reminder.Id] = overlay;
+        overlay.Closed += (_, _) =>
+        {
+            if (_activeOverlays.TryGetValue(reminder.Id, out var current) && ReferenceEquals(current, overlay))
+            {
+                _activeOverlays.Remove(reminder.Id);
+            }
+        };
 
         overlay.Show();
         overlay.Activate();
@@ -701,12 +793,33 @@ public partial class App : System.Windows.Application
 
     private void OnSchedulerRemindersChanged()
     {
+        SyncReminderService.SignalSync();
+
         if (MainAppWindow is null)
         {
             return;
         }
 
         _ = MainAppWindow.Dispatcher.InvokeAsync(async () => await MainAppWindow.ReloadDataAsync());
+    }
+
+    private void OnRemoteRemindersApplied(IReadOnlyList<Reminder> reminders)
+    {
+        if (MainAppWindow is not null)
+        {
+            _ = MainAppWindow.Dispatcher.InvokeAsync(async () => await MainAppWindow.ReloadDataAsync());
+        }
+
+        foreach (var reminder in reminders)
+        {
+            if (reminder.Status is ReminderStatus.Acked or ReminderStatus.Cancelled or ReminderStatus.Snoozed &&
+                _activeOverlays.TryGetValue(reminder.Id, out var overlay))
+            {
+                _ = Dispatcher.InvokeAsync(() => overlay.DismissAsSynced());
+            }
+        }
+
+        Scheduler.SignalReschedule();
     }
 
     private async Task RefreshMainWindowAsync()
@@ -892,8 +1005,17 @@ public partial class App : System.Windows.Application
         var hasTarget =
             !string.IsNullOrWhiteSpace(Settings.TelegramChatId) ||
             !string.IsNullOrWhiteSpace(Settings.TelegramUserId);
-        return !string.IsNullOrWhiteSpace(token) && hasTarget;
+        var hasLocalTelegram = !string.IsNullOrWhiteSpace(token) && hasTarget;
+        var hasServerTelegram = SyncReminderService?.IsSyncActive() == true &&
+                                (!string.IsNullOrWhiteSpace(Settings.SyncTelegramUserId) ||
+                                 !string.IsNullOrWhiteSpace(Settings.TelegramUserId));
+        return hasLocalTelegram || hasServerTelegram;
     }
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 }
+
+
 
 

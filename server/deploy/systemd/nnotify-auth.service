@@ -1,0 +1,43 @@
+﻿[Unit]
+Description=NNotify Auth Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nnotifysvc
+Group=nnotifysvc
+WorkingDirectory=/opt/nnotify/server
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/nnotify/nnotify-auth.env
+ExecStart=/usr/bin/node /opt/nnotify/server/dist/index.js
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+UMask=0077
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+# Node.js/V8 JIT needs executable memory pages, so this must stay disabled.
+MemoryDenyWriteExecute=false
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+
+# Allow writes only where needed
+ReadWritePaths=/opt/nnotify/server/data
+
+# Keep resource usage bounded
+LimitNOFILE=8192
+TasksMax=512
+
+[Install]
+WantedBy=multi-user.target

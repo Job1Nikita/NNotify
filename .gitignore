@@ -34,4 +34,8 @@ settings.*.json
 Server/.env
 Server/node_modules/
 Server/dist/
+server/.env
+server/node_modules/
+server/dist/
+server/data/
 npm-debug.log*

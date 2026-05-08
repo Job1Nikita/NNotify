@@ -1,0 +1,54 @@
+﻿# /etc/nginx/sites-available/nnotify-auth.conf
+server {
+    listen 443 ssl http2;
+    server_name nnotify.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/nnotify.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/nnotify.example.com/privkey.pem;
+
+    # Basic hardening
+    client_max_body_size 32k;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+
+    # Health check
+    location = /health {
+        proxy_pass http://127.0.0.1:3100;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Auth API only
+    location ^~ /v1/auth/ {
+        proxy_pass http://127.0.0.1:3100;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Telegram webhook (replace SECRET_IN_PATH)
+    location = /v1/telegram/webhook/SECRET_IN_PATH {
+        # Optional: verify Telegram webhook header secret.
+        # Replace SECRET_HEADER_VALUE with TELEGRAM_WEBHOOK_HEADER_SECRET.
+        # if ($http_x_telegram_bot_api_secret_token != "SECRET_HEADER_VALUE") { return 403; }
+        limit_except POST { deny all; }
+        proxy_pass http://127.0.0.1:3100;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # deny everything else
+    location / {
+        return 404;
+    }
+}
+

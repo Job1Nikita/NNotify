@@ -24,6 +24,10 @@ public sealed class Reminder
     public DateTimeOffset? AckedAtUtc { get; set; }
     public DateTimeOffset? SnoozeUntilUtc { get; set; }
     public DateTimeOffset? TelegramEscalatedAtUtc { get; set; }
+    public DateTimeOffset SyncUpdatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public bool SyncDirty { get; set; }
+    public DateTimeOffset? SyncDeletedAtUtc { get; set; }
+    public bool SyncDuplicateCandidate { get; set; }
 
     public DateTimeOffset EffectiveDueUtc => SnoozeUntilUtc ?? DueAtUtc;
     public DateTime EffectiveDueLocal => EffectiveDueUtc.LocalDateTime;
@@ -31,16 +35,24 @@ public sealed class Reminder
     public DateTime HistoryMomentLocal => HistoryMomentUtc.LocalDateTime;
     public string EscalatedLocalText => TelegramEscalatedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty;
 
-    public string StatusLabel => Status switch
+    public string StatusLabel
     {
-        ReminderStatus.Scheduled => Loc.Text("ReminderStatusScheduled"),
-        ReminderStatus.Fired => Loc.Text("ReminderStatusFired"),
-        ReminderStatus.Acked => Loc.Text("ReminderStatusAcked"),
-        ReminderStatus.Snoozed => Loc.Text("ReminderStatusSnoozed"),
-        ReminderStatus.Cancelled => Loc.Text("ReminderStatusCancelled"),
-        ReminderStatus.Missed => Loc.Text("ReminderStatusMissed"),
-        _ => Status
-    };
+        get
+        {
+            var status = Status switch
+            {
+                ReminderStatus.Scheduled => Loc.Text("ReminderStatusScheduled"),
+                ReminderStatus.Fired => Loc.Text("ReminderStatusFired"),
+                ReminderStatus.Acked => Loc.Text("ReminderStatusAcked"),
+                ReminderStatus.Snoozed => Loc.Text("ReminderStatusSnoozed"),
+                ReminderStatus.Cancelled => Loc.Text("ReminderStatusCancelled"),
+                ReminderStatus.Missed => Loc.Text("ReminderStatusMissed"),
+                _ => Status
+            };
+
+            return SyncDuplicateCandidate ? $"{status} · {Loc.Text("ReminderDuplicateCandidate")}" : status;
+        }
+    }
 
     public string PriorityLabel => Priority switch
     {

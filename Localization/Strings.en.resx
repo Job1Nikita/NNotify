@@ -66,6 +66,7 @@
   <data name="ReminderStatusSnoozed" xml:space="preserve"><value>Snoozed</value></data>
   <data name="ReminderStatusCancelled" xml:space="preserve"><value>Cancelled</value></data>
   <data name="ReminderStatusMissed" xml:space="preserve"><value>Missed</value></data>
+  <data name="ReminderDuplicateCandidate" xml:space="preserve"><value>possible duplicate</value></data>
 
   <data name="PriorityHigh" xml:space="preserve"><value>High</value></data>
   <data name="PriorityMedium" xml:space="preserve"><value>Medium</value></data>
@@ -105,10 +106,35 @@
   <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Server address</value></data>
   <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Username</value></data>
   <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Password</value></data>
-  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Use HTTPS. Default sync server port: 5334.</value></data>
+  <data name="SettingsLabelSyncTelegramUserId" xml:space="preserve"><value>User ID for alerts</value></data>
+  <data name="SettingsHintSyncTelegramUserId" xml:space="preserve"><value>Optional. Used by the server for Telegram reminder escalation.</value></data>
+  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Use HTTPS. Default sync server port: 443.</value></data>
   <data name="SettingsButtonSyncRegister" xml:space="preserve"><value>Register</value></data>
   <data name="SettingsButtonSyncLogin" xml:space="preserve"><value>Sign in</value></data>
   <data name="SettingsButtonSyncLogout" xml:space="preserve"><value>Sign out</value></data>
+  <data name="SyncRegisterWindowTitle" xml:space="preserve"><value>Account registration</value></data>
+  <data name="SyncRegisterHeading" xml:space="preserve"><value>Registration request</value></data>
+  <data name="SyncRegisterLabelServer" xml:space="preserve"><value>Server address</value></data>
+  <data name="SyncRegisterHintServerExample" xml:space="preserve"><value>Example: nnotify.mysite.com or https://nnotify.mysite.com:443</value></data>
+  <data name="SyncRegisterLabelUsername" xml:space="preserve"><value>Username</value></data>
+  <data name="SyncRegisterHintUsernameExample" xml:space="preserve"><value>Example: john.doe (minimum 3 characters).</value></data>
+  <data name="SyncRegisterLabelPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="SyncRegisterHintPasswordRules" xml:space="preserve"><value>Password policy depends on server settings. If rejected, ask your administrator for required rules.</value></data>
+  <data name="SyncRegisterButtonSubmit" xml:space="preserve"><value>Submit request</value></data>
+  <data name="SyncRegisterStatusSubmitted" xml:space="preserve"><value>Registration request submitted. Wait for admin approval.</value></data>
+  <data name="SyncRegisterStatusUserExists" xml:space="preserve"><value>User with this login already exists.</value></data>
+  <data name="SyncRegisterStatusTimeout" xml:space="preserve"><value>Connection timeout while contacting server.</value></data>
+  <data name="SyncRegisterStatusRequestFailed" xml:space="preserve"><value>Could not submit registration request. Check server URL and TLS certificate.</value></data>
+  <data name="SyncRegisterStatusInvalidCredentialsFormat" xml:space="preserve"><value>Check username and password format.</value></data>
+  <data name="SyncRegisterStatusInvalidUsernameFormat" xml:space="preserve"><value>Invalid username format. Use 3-32 chars: latin letters, digits, dot, underscore or hyphen.</value></data>
+  <data name="SyncRegisterStatusWeakPassword" xml:space="preserve"><value>Password is too weak. Ask server administrator for password policy requirements.</value></data>
+  <data name="SyncLoginStatusInvalidCredentials" xml:space="preserve"><value>Invalid username or password.</value></data>
+  <data name="SyncLoginStatusPendingApproval" xml:space="preserve"><value>Access denied. Account is pending admin approval.</value></data>
+  <data name="SyncLoginStatusAccessDenied" xml:space="preserve"><value>Access denied. Contact your server administrator.</value></data>
+  <data name="SyncLoginStatusRateLimited" xml:space="preserve"><value>Too many failed attempts. Try again later.</value></data>
+  <data name="SyncLoginStatusTimeout" xml:space="preserve"><value>Connection timeout while contacting server.</value></data>
+  <data name="SyncLoginStatusRequestFailed" xml:space="preserve"><value>Could not sign in. Check server URL and TLS certificate.</value></data>
+  <data name="SyncCommonStatusUnknownError" xml:space="preserve"><value>Could not complete sync operation. Check settings and try again.</value></data>
   <data name="SettingsSyncStatusInvalidUsername" xml:space="preserve"><value>Username must contain at least 3 characters.</value></data>
   <data name="SettingsSyncStatusInvalidPassword" xml:space="preserve"><value>Password must contain at least 8 characters.</value></data>
   <data name="SettingsSyncStatusEnterUsername" xml:space="preserve"><value>Enter account username.</value></data>
@@ -119,7 +145,7 @@
   <data name="SettingsSyncStatusSessionActive" xml:space="preserve"><value>Session is active. Sync is available.</value></data>
   <data name="SettingsSyncStatusSessionMissing" xml:space="preserve"><value>No active session. Please sign in.</value></data>
   <data name="SettingsSyncStatusEnterServer" xml:space="preserve"><value>Enter sync server address.</value></data>
-  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Invalid server address. Example: https://server.example.com:5334</value></data>
+  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Invalid server address. Example: https://server.example.com:443</value></data>
   <data name="SettingsSyncStatusHttpsRequired" xml:space="preserve"><value>Only HTTPS is allowed for secure connection.</value></data>
   <data name="SettingsLabelStartup" xml:space="preserve"><value>Start with Windows</value></data>
   <data name="SettingsHintStartup" xml:space="preserve"><value>Starts NNotify automatically after Windows sign-in (without a separate service).</value></data>
@@ -183,4 +209,5 @@
   <data name="StartupErrorEnable" xml:space="preserve"><value>Could not enable startup. See details in log.txt.</value></data>
   <data name="StartupErrorDisable" xml:space="preserve"><value>Could not disable startup. See details in log.txt.</value></data>
 </root>
+
 

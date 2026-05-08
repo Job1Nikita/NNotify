@@ -8,10 +8,14 @@ public sealed class AppSettings
     public string? TelegramUserId { get; set; }
     public string? SyncServerUrl { get; set; }
     public string? SyncUsername { get; set; }
+    public string? SyncTelegramUserId { get; set; }
+    public string? SyncLastUploadedTelegramUserId { get; set; }
     public string? SyncDeviceId { get; set; }
     public string? SyncAccessTokenEncrypted { get; set; }
     public string? SyncRefreshTokenEncrypted { get; set; }
     public DateTimeOffset? SyncAccessTokenExpiresAtUtc { get; set; }
+    public long SyncLastPulledChangeUtc { get; set; }
+    public bool SyncInitialLocalPublishCompleted { get; set; }
     public bool HotKeyEnabled { get; set; } = true;
     public string HotKeyGesture { get; set; } = "Ctrl+Alt+R";
     public bool MainWindowTopmost { get; set; }

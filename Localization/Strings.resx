@@ -66,6 +66,7 @@
   <data name="ReminderStatusSnoozed" xml:space="preserve"><value>Отложено</value></data>
   <data name="ReminderStatusCancelled" xml:space="preserve"><value>Отменено</value></data>
   <data name="ReminderStatusMissed" xml:space="preserve"><value>Пропущено</value></data>
+  <data name="ReminderDuplicateCandidate" xml:space="preserve"><value>похоже на дубль</value></data>
 
   <data name="PriorityHigh" xml:space="preserve"><value>Важно</value></data>
   <data name="PriorityMedium" xml:space="preserve"><value>Средне</value></data>
@@ -105,10 +106,35 @@
   <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Адрес сервера</value></data>
   <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Логин</value></data>
   <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Пароль</value></data>
-  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Используйте HTTPS. Порт по умолчанию для сервера синхронизации: 5334.</value></data>
+  <data name="SettingsLabelSyncTelegramUserId" xml:space="preserve"><value>ID пользователя для оповещений</value></data>
+  <data name="SettingsHintSyncTelegramUserId" xml:space="preserve"><value>Необязательно. Используется сервером для Telegram-эскалации напоминаний.</value></data>
+  <data name="SettingsHintSyncTls" xml:space="preserve"><value>Используйте HTTPS. Порт по умолчанию для сервера синхронизации: 443.</value></data>
   <data name="SettingsButtonSyncRegister" xml:space="preserve"><value>Регистрация</value></data>
   <data name="SettingsButtonSyncLogin" xml:space="preserve"><value>Войти</value></data>
   <data name="SettingsButtonSyncLogout" xml:space="preserve"><value>Выйти</value></data>
+  <data name="SyncRegisterWindowTitle" xml:space="preserve"><value>Регистрация учетной записи</value></data>
+  <data name="SyncRegisterHeading" xml:space="preserve"><value>Запрос на регистрацию</value></data>
+  <data name="SyncRegisterLabelServer" xml:space="preserve"><value>Адрес сервера</value></data>
+  <data name="SyncRegisterHintServerExample" xml:space="preserve"><value>Пример: nnotify.mysite.com или https://nnotify.mysite.com:443</value></data>
+  <data name="SyncRegisterLabelUsername" xml:space="preserve"><value>Логин</value></data>
+  <data name="SyncRegisterHintUsernameExample" xml:space="preserve"><value>Пример: ivan.petrov (минимум 3 символа).</value></data>
+  <data name="SyncRegisterLabelPassword" xml:space="preserve"><value>Пароль</value></data>
+  <data name="SyncRegisterHintPasswordRules" xml:space="preserve"><value>Требования к паролю зависят от сервера. Если запрос отклонен, уточните правила у администратора.</value></data>
+  <data name="SyncRegisterButtonSubmit" xml:space="preserve"><value>Отправить запрос</value></data>
+  <data name="SyncRegisterStatusSubmitted" xml:space="preserve"><value>Заявка на регистрацию отправлена. Дождитесь подтверждения администратора.</value></data>
+  <data name="SyncRegisterStatusUserExists" xml:space="preserve"><value>Пользователь с таким логином уже существует.</value></data>
+  <data name="SyncRegisterStatusTimeout" xml:space="preserve"><value>Превышено время ожидания соединения с сервером.</value></data>
+  <data name="SyncRegisterStatusRequestFailed" xml:space="preserve"><value>Не удалось отправить заявку. Проверьте адрес сервера и TLS-сертификат.</value></data>
+  <data name="SyncRegisterStatusInvalidCredentialsFormat" xml:space="preserve"><value>Проверьте формат логина и пароля.</value></data>
+  <data name="SyncRegisterStatusInvalidUsernameFormat" xml:space="preserve"><value>Некорректный формат логина. Используйте 3-32 символа: латиница, цифры, точка, подчеркивание или дефис.</value></data>
+  <data name="SyncRegisterStatusWeakPassword" xml:space="preserve"><value>Слишком слабый пароль. Уточните требования к сложности у администратора сервера.</value></data>
+  <data name="SyncLoginStatusInvalidCredentials" xml:space="preserve"><value>Неверный логин или пароль.</value></data>
+  <data name="SyncLoginStatusPendingApproval" xml:space="preserve"><value>Доступ запрещен. Учетная запись ожидает подтверждения администратора.</value></data>
+  <data name="SyncLoginStatusAccessDenied" xml:space="preserve"><value>Доступ запрещен. Обратитесь к администратору сервера.</value></data>
+  <data name="SyncLoginStatusRateLimited" xml:space="preserve"><value>Слишком много неудачных попыток входа. Попробуйте позже.</value></data>
+  <data name="SyncLoginStatusTimeout" xml:space="preserve"><value>Превышено время ожидания соединения с сервером.</value></data>
+  <data name="SyncLoginStatusRequestFailed" xml:space="preserve"><value>Не удалось выполнить вход. Проверьте адрес сервера и TLS-сертификат.</value></data>
+  <data name="SyncCommonStatusUnknownError" xml:space="preserve"><value>Не удалось выполнить операцию синхронизации. Проверьте настройки и повторите попытку.</value></data>
   <data name="SettingsSyncStatusInvalidUsername" xml:space="preserve"><value>Логин должен содержать минимум 3 символа.</value></data>
   <data name="SettingsSyncStatusInvalidPassword" xml:space="preserve"><value>Пароль должен содержать минимум 8 символов.</value></data>
   <data name="SettingsSyncStatusEnterUsername" xml:space="preserve"><value>Введите логин для учетной записи.</value></data>
@@ -119,7 +145,7 @@
   <data name="SettingsSyncStatusSessionActive" xml:space="preserve"><value>Сессия активна. Синхронизация доступна.</value></data>
   <data name="SettingsSyncStatusSessionMissing" xml:space="preserve"><value>Сессия не активна. Выполните вход.</value></data>
   <data name="SettingsSyncStatusEnterServer" xml:space="preserve"><value>Введите адрес сервера синхронизации.</value></data>
-  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Некорректный адрес сервера. Пример: https://server.example.com:5334</value></data>
+  <data name="SettingsSyncStatusInvalidServer" xml:space="preserve"><value>Некорректный адрес сервера. Пример: https://server.example.com:443</value></data>
   <data name="SettingsSyncStatusHttpsRequired" xml:space="preserve"><value>Разрешен только HTTPS для безопасного подключения.</value></data>
   <data name="SettingsLabelStartup" xml:space="preserve"><value>Автозапуск с Windows</value></data>
   <data name="SettingsHintStartup" xml:space="preserve"><value>Запускает NNotify автоматически после входа в Windows (без установки отдельной службы).</value></data>
@@ -183,4 +209,5 @@
   <data name="StartupErrorEnable" xml:space="preserve"><value>Не удалось включить автозапуск. Подробности в log.txt.</value></data>
   <data name="StartupErrorDisable" xml:space="preserve"><value>Не удалось отключить автозапуск. Подробности в log.txt.</value></data>
 </root>
+
 
