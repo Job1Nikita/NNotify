@@ -1,25 +1,48 @@
 ﻿# NNotify Server
 
-NNotify Server provides account management, admin approval, reminder synchronization, and server-side Telegram escalation for NNotify desktop clients.
+[Русская версия](#ru) | [English Version](#en)
 
-The server is optional. The Windows client can still work fully offline without it.
+---
 
-## Features
+<a id="ru"></a>
+## Русская версия
 
-- Client registration with pending admin approval
-- Login / refresh / logout API
-- Multi-device reminder synchronization
-- Initial merge of local client reminders
-- Sync for active, missed, and historical reminders
-- Duplicate-candidate marking for similar reminders
-- Server-side Telegram reminder escalation
-- Telegram admin panel for approving, blocking, deleting, and restoring users
-- Admin CLI for user management
-- SQLite storage with WAL mode
+**Быстрые ссылки:**
+[Описание](#ru-overview) | [Возможности](#ru-features) | [API](#ru-api) | [Безопасность](#ru-security) | [Развертывание](#ru-deploy) | [Telegram](#ru-telegram) | [CLI](#ru-cli) | [SQLite](#ru-sqlite)
 
-## API Surface
+<a id="ru-overview"></a>
+### Описание
 
-Public API behind nginx:
+**NNotify Server** — серверная часть для NNotify Desktop.
+
+Сервер отвечает за:
+
+- учетные записи пользователей;
+- подтверждение регистраций администратором;
+- синхронизацию напоминаний между устройствами;
+- серверную Telegram-эскалацию напоминаний;
+- Telegram-админку и CLI-управление пользователями.
+
+Сервер опционален. Клиент NNotify может работать полностью локально без него.
+
+<a id="ru-features"></a>
+### Возможности
+
+- Регистрация клиента со статусом `pending approval`.
+- Вход / обновление сессии / выход.
+- Синхронизация напоминаний между несколькими устройствами.
+- Первичное объединение локальных напоминаний при подключении sync-аккаунта.
+- Синхронизация активных, пропущенных и исторических напоминаний.
+- Отметка похожих напоминаний как возможных дублей.
+- Серверная Telegram-эскалация, даже если клиент выключен.
+- Telegram-админка для подтверждения, блокировки, удаления и восстановления пользователей.
+- Admin CLI для управления пользователями.
+- SQLite с WAL mode.
+
+<a id="ru-api"></a>
+### API
+
+Публичные маршруты за nginx:
 
 - `POST /v1/auth/register`
 - `POST /v1/auth/login`
@@ -29,37 +52,39 @@ Public API behind nginx:
 - `POST /v1/sync/reminders/batch`
 - `POST /v1/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>`
 
-The app process itself should bind only to loopback:
+Сам Node.js-процесс должен слушать только loopback:
 
 ```text
 127.0.0.1:3100
 ```
 
-## Security Baseline
+<a id="ru-security"></a>
+### Базовая безопасность
 
-- Run behind nginx: `443 -> 127.0.0.1:3100`
-- Run as a dedicated Linux user, for example `nnotifysvc`
-- Keep secrets outside the repo in `/etc/nnotify/nnotify-auth.env`
-- Password hashing: Argon2id
-- Access JWT with short TTL
-- Opaque refresh token stored only as hash
-- Refresh token rotation and reuse detection
-- Account lockout after repeated failed login attempts
-- Rate limits on auth routes
-- Telegram webhook path secret
-- Optional Telegram webhook header secret
-- Request logs are quiet by default: successful polling is not logged, errors are logged
+- Сервер работает за nginx: `443 -> 127.0.0.1:3100`.
+- Процесс запускается от отдельного Linux-пользователя, например `nnotifysvc`.
+- Секреты хранятся вне репозитория: `/etc/nnotify/nnotify-auth.env`.
+- Пароли хранятся как Argon2id-хэши.
+- Access JWT короткоживущий.
+- Refresh token хранится только как хэш.
+- Refresh token rotation и защита от повторного использования.
+- Блокировка входа после серии неудачных попыток.
+- Rate-limit на auth-маршрутах.
+- Секретный путь Telegram webhook.
+- Опциональная проверка Telegram webhook header secret.
+- Успешный polling не логируется, ошибки логируются.
 
-## Recommended Production Layout
+<a id="ru-deploy"></a>
+### Рекомендуемая структура на сервере
 
 ```text
-/opt/nnotify/server                 # app code
+/opt/nnotify/server                 # код приложения
 /opt/nnotify/server/data            # SQLite DB
-/etc/nnotify/nnotify-auth.env       # protected runtime config
+/etc/nnotify/nnotify-auth.env       # защищенный runtime config
 /etc/systemd/system/nnotify-auth.service
 ```
 
-## 1. Create Service User And Directories
+### 1. Создать пользователя и директории
 
 ```bash
 sudo useradd --system --create-home --home-dir /opt/nnotify --shell /usr/sbin/nologin nnotifysvc
@@ -68,7 +93,264 @@ sudo chown -R nnotifysvc:nnotifysvc /opt/nnotify
 sudo chmod 750 /opt/nnotify/server
 ```
 
-## 2. Copy Files
+### 2. Скопировать файлы
+
+Скопируйте каталог `server/` из репозитория в:
+
+```text
+/opt/nnotify/server
+```
+
+Не копируйте локальные `.env`, `data/`, `dist/`, `node_modules/` с dev-машины.
+
+### 3. Создать защищенный env-файл
+
+Шаблон в репозитории:
+
+```text
+server/deploy/systemd/nnotify-auth.env.example
+```
+
+На сервере:
+
+```bash
+sudo cp /opt/nnotify/server/deploy/systemd/nnotify-auth.env.example /etc/nnotify/nnotify-auth.env
+sudo chown root:nnotifysvc /etc/nnotify/nnotify-auth.env
+sudo chmod 640 /etc/nnotify/nnotify-auth.env
+sudo nano /etc/nnotify/nnotify-auth.env
+```
+
+Замените все значения `CHANGE_ME`.
+
+Важные параметры:
+
+- `PUBLIC_BASE_URL=https://your-domain.example`
+- `JWT_ACCESS_SECRET` — длинный случайный секрет, 64+ символа
+- `REFRESH_TOKEN_PEPPER` — другой длинный случайный секрет, 64+ символа
+- `TELEGRAM_BOT_TOKEN` — токен админского бота
+- `REMINDER_TELEGRAM_BOT_TOKEN` — токен бота для эскалации напоминаний
+- `TELEGRAM_ADMIN_CHAT_ID` — chat target для админского бота
+- `TELEGRAM_ADMIN_USER_IDS` — Telegram user IDs, которым разрешена админка
+- `TELEGRAM_WEBHOOK_SECRET` — секретный сегмент пути webhook
+- `TELEGRAM_WEBHOOK_HEADER_SECRET` — опциональный header secret для Telegram webhook
+- `REMINDER_TIME_ZONE` — таймзона для сообщений, например `Europe/Moscow`
+
+### 4. Установить зависимости
+
+Используйте lockfile:
+
+```bash
+cd /opt/nnotify/server
+npm ci
+```
+
+Не обновляйте глобальный npm на shared-хосте. Все npm-команды выполняйте только внутри `/opt/nnotify/server`.
+
+### 5. Собрать и инициализировать БД
+
+```bash
+cd /opt/nnotify/server
+npm run build
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run migrate'
+```
+
+### 6. Установить systemd-службу
+
+Unit-файл в репозитории:
+
+```text
+server/deploy/systemd/nnotify-auth.service
+```
+
+Установка:
+
+```bash
+sudo cp /opt/nnotify/server/deploy/systemd/nnotify-auth.service /etc/systemd/system/nnotify-auth.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now nnotify-auth
+sudo systemctl status nnotify-auth --no-pager
+```
+
+Логи:
+
+```bash
+journalctl -u nnotify-auth -f
+```
+
+### 7. Настроить nginx
+
+Пример конфига:
+
+```text
+server/deploy/nginx/nnotify-auth.conf.example
+```
+
+Используйте его как:
+
+```text
+/etc/nginx/sites-available/nnotify-auth.conf
+```
+
+Что нужно заменить:
+
+- `nnotify.example.com` на ваш домен;
+- `SECRET_IN_PATH` на `TELEGRAM_WEBHOOK_SECRET`;
+- при необходимости включить проверку `X-Telegram-Bot-Api-Secret-Token` через `TELEGRAM_WEBHOOK_HEADER_SECRET`;
+- backend оставить на `127.0.0.1:3100`;
+- оставить `client_max_body_size 256k` или больше для sync batch-запросов.
+
+Включить конфиг:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/nnotify-auth.conf /etc/nginx/sites-enabled/nnotify-auth.conf
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+<a id="ru-telegram"></a>
+### Telegram Admin Bot
+
+Если Telegram moderation включен, установите webhook:
+
+```bash
+cd /opt/nnotify/server
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- telegram:set-webhook'
+```
+
+Затем откройте админского бота в Telegram и нажмите `Start`.
+
+Админка поддерживает:
+
+- зарегистрированных пользователей;
+- заблокированных пользователей;
+- удаленных пользователей;
+- ожидающие регистрации;
+- подтвердить / отклонить;
+- заблокировать / разблокировать;
+- удалить / восстановить.
+
+### Telegram-эскалация напоминаний
+
+Для серверной эскалации:
+
+1. Заполните `REMINDER_TELEGRAM_BOT_TOKEN`.
+2. В клиенте заполните `ID пользователя для оповещений` в блоке sync-аккаунта.
+3. Пользователь должен открыть бота напоминаний и нажать `Start`.
+
+Если Telegram возвращает `Bad Request: chat not found`, пользователь не нажал `Start` у этого бота или указан неправильный user ID.
+
+<a id="ru-cli"></a>
+### Admin CLI
+
+```bash
+cd /opt/nnotify/server
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:list'
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:list pending'
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:create mylogin'
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:approve mylogin'
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:reject mylogin "manual reject"'
+sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:block mylogin'
+```
+
+<a id="ru-sqlite"></a>
+### SQLite
+
+SQLite подходит для небольших приватных инсталляций, например около 20 пользователей и нескольких устройств на пользователя.
+
+Если проект вырастет в тяжелую конкурентную запись, следующим логичным шагом будет PostgreSQL.
+
+---
+
+<a id="en"></a>
+## English Version
+
+**Quick Links:**
+[Overview](#en-overview) | [Features](#en-features) | [API](#en-api) | [Security](#en-security) | [Deployment](#en-deploy) | [Telegram](#en-telegram) | [CLI](#en-cli) | [SQLite](#en-sqlite)
+
+<a id="en-overview"></a>
+### Overview
+
+**NNotify Server** is the server component for NNotify Desktop.
+
+It provides:
+
+- user accounts;
+- admin approval for registrations;
+- reminder synchronization between devices;
+- server-side Telegram reminder escalation;
+- Telegram admin panel and CLI user management.
+
+The server is optional. The NNotify client can still work fully offline without it.
+
+<a id="en-features"></a>
+### Features
+
+- Client registration with `pending approval` status.
+- Login / refresh / logout API.
+- Multi-device reminder synchronization.
+- Initial merge of local reminders when a sync account is connected.
+- Sync for active, missed, and historical reminders.
+- Duplicate-candidate marking for similar reminders.
+- Server-side Telegram escalation even when the client is offline.
+- Telegram admin panel for approving, blocking, deleting, and restoring users.
+- Admin CLI for user management.
+- SQLite storage with WAL mode.
+
+<a id="en-api"></a>
+### API
+
+Public routes behind nginx:
+
+- `POST /v1/auth/register`
+- `POST /v1/auth/login`
+- `POST /v1/auth/refresh`
+- `POST /v1/auth/logout`
+- `GET /v1/sync/reminders`
+- `POST /v1/sync/reminders/batch`
+- `POST /v1/telegram/webhook/<TELEGRAM_WEBHOOK_SECRET>`
+
+The Node.js process itself should bind only to loopback:
+
+```text
+127.0.0.1:3100
+```
+
+<a id="en-security"></a>
+### Security Baseline
+
+- Run behind nginx: `443 -> 127.0.0.1:3100`.
+- Run as a dedicated Linux user, for example `nnotifysvc`.
+- Keep secrets outside the repository in `/etc/nnotify/nnotify-auth.env`.
+- Password hashing: Argon2id.
+- Short-lived access JWT.
+- Opaque refresh token stored only as hash.
+- Refresh token rotation and reuse detection.
+- Account lockout after repeated failed login attempts.
+- Rate limits on auth routes.
+- Telegram webhook path secret.
+- Optional Telegram webhook header secret.
+- Successful polling is not logged; errors are logged.
+
+<a id="en-deploy"></a>
+### Recommended Production Layout
+
+```text
+/opt/nnotify/server                 # app code
+/opt/nnotify/server/data            # SQLite DB
+/etc/nnotify/nnotify-auth.env       # protected runtime config
+/etc/systemd/system/nnotify-auth.service
+```
+
+### 1. Create Service User And Directories
+
+```bash
+sudo useradd --system --create-home --home-dir /opt/nnotify --shell /usr/sbin/nologin nnotifysvc
+sudo mkdir -p /opt/nnotify/server /etc/nnotify
+sudo chown -R nnotifysvc:nnotifysvc /opt/nnotify
+sudo chmod 750 /opt/nnotify/server
+```
+
+### 2. Copy Files
 
 Copy the repository `server/` directory to:
 
@@ -78,7 +360,7 @@ Copy the repository `server/` directory to:
 
 Do not copy local `.env`, `data/`, `dist/`, or `node_modules/` from a development machine.
 
-## 3. Create Protected Env File
+### 3. Create Protected Env File
 
 Template in repo:
 
@@ -110,7 +392,7 @@ Important values:
 - `TELEGRAM_WEBHOOK_HEADER_SECRET` - optional Telegram webhook header secret
 - `REMINDER_TIME_ZONE` - timezone for reminder messages, for example `Europe/Moscow`
 
-## 4. Install Dependencies
+### 4. Install Dependencies
 
 Use the lockfile for reproducible installs:
 
@@ -121,7 +403,7 @@ npm ci
 
 Do not run global npm updates on a shared host. Keep npm commands inside `/opt/nnotify/server`.
 
-## 5. Build And Initialize Database
+### 5. Build And Initialize Database
 
 ```bash
 cd /opt/nnotify/server
@@ -129,7 +411,7 @@ npm run build
 sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run migrate'
 ```
 
-## 6. Install systemd Service
+### 6. Install systemd Service
 
 Unit file in repo:
 
@@ -152,7 +434,7 @@ Logs:
 journalctl -u nnotify-auth -f
 ```
 
-## 7. Configure nginx
+### 7. Configure nginx
 
 Example config in repo:
 
@@ -182,7 +464,8 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 8. Telegram Admin Bot
+<a id="en-telegram"></a>
+### Telegram Admin Bot
 
 If Telegram moderation is enabled, set webhook:
 
@@ -195,15 +478,26 @@ Then open the admin bot in Telegram and press `Start`.
 
 The admin panel supports:
 
-- registered users
-- blocked users
-- deleted users
-- pending registrations
-- approve / reject
-- block / unblock
-- delete / restore
+- registered users;
+- blocked users;
+- deleted users;
+- pending registrations;
+- approve / reject;
+- block / unblock;
+- delete / restore.
 
-## 9. Admin CLI
+### Telegram Reminder Escalation
+
+For server-side reminder escalation:
+
+1. Set `REMINDER_TELEGRAM_BOT_TOKEN`.
+2. In the desktop client, fill `User ID for alerts` in the sync account section.
+3. The user must open the reminder bot and press `Start`.
+
+If Telegram returns `Bad Request: chat not found`, the user has not started that bot or the user ID is incorrect.
+
+<a id="en-cli"></a>
+### Admin CLI
 
 ```bash
 cd /opt/nnotify/server
@@ -215,17 +509,8 @@ sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; se
 sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; set +a; npm run admin -- user:block mylogin'
 ```
 
-## Telegram Reminder Escalation
-
-For server-side reminder escalation:
-
-1. Set `REMINDER_TELEGRAM_BOT_TOKEN`.
-2. In the desktop client, fill `User ID for alerts` in the sync account section.
-3. The user must open the reminder bot and press `Start`.
-
-If Telegram returns `Bad Request: chat not found`, the user has not started that bot or the user ID is incorrect.
-
-## SQLite Note
+<a id="en-sqlite"></a>
+### SQLite
 
 SQLite is acceptable for small private deployments, for example around 20 users and a few devices per user.
 
