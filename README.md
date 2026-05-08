@@ -205,15 +205,15 @@ Starting with `v2.0.0`, NNotify supports two modes:
 
 **Main window**
 
-![Main window](docs/images/Main_Windows.png)
+![Main window](docs/images/EN_Main_Windows.png)
 
 **Add reminder**
 
-![Add reminder window](docs/images/Add_Notification.png)
+![Add reminder window](docs/images/EN_Add_Notification.png)
 
 **Settings**
 
-![Settings window](docs/images/Panel_Settings.png)
+![Settings window](docs/images/EN_Panel_Settings.png)
 
 <a id="en-features"></a>
 ### Client Features
