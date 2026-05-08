@@ -208,6 +208,27 @@ sudo systemctl reload nginx
 ```
 
 <a id="ru-telegram"></a>
+### Telegram Bot Setup
+
+Для серверной части обычно используются два Telegram-бота:
+
+- `TELEGRAM_BOT_TOKEN` — админский бот для подтверждения регистраций и управления пользователями.
+- `REMINDER_TELEGRAM_BOT_TOKEN` — бот, который отправляет пользователям эскалации напоминаний.
+
+Можно использовать одного и того же бота для обеих ролей, но отдельные боты удобнее и безопаснее: админские действия и пользовательские уведомления не смешиваются.
+
+Как создать бота:
+
+1. Откройте `@BotFather` в Telegram.
+2. Выполните `/newbot`.
+3. Задайте имя и username бота.
+4. Скопируйте Bot Token в нужную env-переменную.
+5. Пользователь, которому бот должен писать в личку, должен открыть этого бота и нажать `Start`.
+
+Для Telegram-админки администратор должен нажать `Start` у админского бота.
+
+Для серверной эскалации каждый пользователь должен нажать `Start` у бота напоминаний. Иначе Telegram вернет `Bad Request: chat not found`.
+
 ### Telegram Admin Bot
 
 Если Telegram moderation включен, установите webhook:
@@ -465,6 +486,27 @@ sudo systemctl reload nginx
 ```
 
 <a id="en-telegram"></a>
+### Telegram Bot Setup
+
+The server usually uses two Telegram bots:
+
+- `TELEGRAM_BOT_TOKEN` — admin bot for registration approval and user management.
+- `REMINDER_TELEGRAM_BOT_TOKEN` — reminder bot for user escalation messages.
+
+You can use the same bot for both roles, but separate bots are cleaner and safer: admin actions and user alerts do not mix.
+
+How to create a bot:
+
+1. Open `@BotFather` in Telegram.
+2. Run `/newbot`.
+3. Set the bot name and username.
+4. Copy the Bot Token into the corresponding env variable.
+5. The user who should receive direct messages must open this bot and press `Start`.
+
+For the Telegram admin panel, the administrator must press `Start` in the admin bot.
+
+For server-side reminder escalation, each user must press `Start` in the reminder bot. Otherwise Telegram returns `Bad Request: chat not found`.
+
 ### Telegram Admin Bot
 
 If Telegram moderation is enabled, set webhook:
@@ -515,3 +557,4 @@ sudo -u nnotifysvc -H bash -lc 'set -a; source /etc/nnotify/nnotify-auth.env; se
 SQLite is acceptable for small private deployments, for example around 20 users and a few devices per user.
 
 If the system grows into heavy concurrent write traffic, PostgreSQL would be the next reasonable step.
+

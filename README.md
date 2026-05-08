@@ -81,6 +81,18 @@ NNotify поддерживает два варианта Telegram-эскалац
 
 Для личных сообщений пользователь должен открыть соответствующего Telegram-бота и нажать `Start`. Это ограничение Telegram Bot API: бот не может написать пользователю первым.
 
+#### Как подготовить Telegram-бота
+
+1. Откройте `@BotFather` в Telegram.
+2. Выполните команду `/newbot` и создайте бота.
+3. Скопируйте выданный Bot Token.
+4. Для локальной эскалации вставьте token в настройки клиента.
+5. Для серверной эскалации администратор сервера указывает token в `REMINDER_TELEGRAM_BOT_TOKEN`.
+6. Пользователь, которому должны приходить личные уведомления, обязан открыть этого бота и нажать `Start`.
+7. В клиенте укажите Telegram User ID в поле `ID пользователя для оповещений`.
+
+Если `Start` не нажать, Telegram вернет ошибку `Bad Request: chat not found`, и сервер не сможет отправить личное сообщение.
+
 Формат серверного сообщения:
 
 ```text
@@ -247,6 +259,18 @@ NNotify supports two Telegram escalation modes:
 
 For direct messages, the user must open the corresponding Telegram bot and press `Start`. This is a Telegram Bot API limitation: bots cannot start conversations with users first.
 
+#### How to Prepare a Telegram Bot
+
+1. Open `@BotFather` in Telegram.
+2. Run `/newbot` and create a bot.
+3. Copy the generated Bot Token.
+4. For local escalation, paste the token into the desktop client settings.
+5. For server-side escalation, the server administrator sets the token in `REMINDER_TELEGRAM_BOT_TOKEN`.
+6. The user who should receive direct alerts must open this bot and press `Start`.
+7. In the desktop client, fill Telegram User ID in `User ID for alerts`.
+
+If `Start` is not pressed, Telegram returns `Bad Request: chat not found`, and the server cannot send a direct message.
+
 Server message format:
 
 ```text
@@ -333,3 +357,4 @@ Deployment guide:
 ```text
 server/README.md
 ```
+
