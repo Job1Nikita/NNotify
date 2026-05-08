@@ -1,6 +1,6 @@
 param(
     [string]$Configuration = "Release",
-    [string]$Output = "artifacts\\singlefile"
+    [string]$Output = "artifacts\\singlefile_release"
 )
 
 $ErrorActionPreference = "Stop"
