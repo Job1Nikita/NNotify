@@ -75,7 +75,10 @@ PWA работает только через серверный режим и и
 - просматривать ближайшие напоминания и историю;
 - синхронизировать изменения с Windows-клиентом.
 
-На iOS PWA можно добавить на экран “Домой” через меню браузера: `Поделиться` → `На экран “Домой”`.
+PWA можно установить на рабочий стол / экран “Домой”:
+
+- iOS: открыть сайт в Safari → `Поделиться` → `На экран “Домой”`.
+- Android: открыть сайт в Chrome → меню `⋮` → `Установить приложение` или `Добавить на главный экран`.
 
 <a id="ru-sync"></a>
 ### Серверная синхронизация
@@ -281,7 +284,10 @@ In web/PWA, you can:
 - view upcoming reminders and history;
 - synchronize changes with the Windows client.
 
-On iOS, the PWA can be added to the Home Screen from the browser menu: `Share` → `Add to Home Screen`.
+The PWA can be installed to the desktop / Home Screen:
+
+- iOS: open the site in Safari → `Share` → `Add to Home Screen`.
+- Android: open the site in Chrome → menu `⋮` → `Install app` or `Add to Home screen`.
 
 <a id="en-sync"></a>
 ### Server Synchronization
