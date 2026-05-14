@@ -3,16 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:NNotify.Localization"
         Title="{loc:Loc SyncRegisterWindowTitle}"
-        Height="524"
-        Width="620"
+        Height="492"
+        Width="588"
         ResizeMode="NoResize"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Opacity="0">
     <Window.Resources>
+        <Style x:Key="EmptyFocusVisualStyle" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Static SystemParameters.FocusVisualStyleKey}" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="RoundedInputTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Padding" Value="8,4" />
             <Setter Property="FontFamily" Value="Segoe UI" />
@@ -78,8 +95,16 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="Transparent">
-        <Border Style="{StaticResource PanelCardStyle}" Margin="16" Padding="0">
+    <Grid x:Name="DialogSurface"
+          Background="Transparent"
+          RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform x:Name="DialogScale" ScaleX="0.985" ScaleY="0.985" />
+                <TranslateTransform x:Name="DialogTranslate" Y="10" />
+            </TransformGroup>
+        </Grid.RenderTransform>
+        <Border Style="{StaticResource PanelCardStyle}" Margin="0" Padding="0" Effect="{x:Null}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -191,11 +216,12 @@
                                 Width="106"
                                 IsCancel="True" />
                         <Button x:Name="SubmitButton"
-                                Content="{loc:Loc SyncRegisterButtonSubmit}"
                                 Width="178"
                                 IsDefault="True"
                                 Style="{StaticResource AccentButtonStyle}"
-                                Click="OnSubmitClick" />
+                                Click="OnSubmitClick">
+                            <TextBlock Text="{loc:Loc SyncRegisterButtonSubmit}" Foreground="#F4FAFF" />
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>

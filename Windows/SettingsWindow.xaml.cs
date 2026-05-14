@@ -1,5 +1,8 @@
-﻿using System.Windows;
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Reflection;
 using System.IO;
 using System.Media;
@@ -8,6 +11,8 @@ using NNotify.Native;
 using NNotify.Services;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace NNotify.Windows;
 
@@ -15,6 +20,11 @@ public partial class SettingsWindow : Window
 {
     private const string MaskPlaceholder = "********";
     private const string EasterEggSoundResourceName = "NNotify.Assets.Sounds.WindowsNotifyCalendar.wav";
+    private const int WmSysCommand = 0x0112;
+    private const int WmNcLeftButtonDown = 0x00A1;
+    private const int HtCaption = 2;
+    private const int ScSize = 0xF000;
+    private const int WmszBottomRight = 8;
     private static readonly SolidColorBrush SyncStatusNeutralBrush = new((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#617189"));
     private static readonly SolidColorBrush SyncStatusSuccessBrush = new((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2C78FF"));
     private static readonly SolidColorBrush SyncStatusErrorBrush = new((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#D14A4A"));
@@ -32,6 +42,16 @@ public partial class SettingsWindow : Window
     private bool _suppressPasswordChanged;
     private DateTime _lastAboutSignatureTapAt = DateTime.MinValue;
     private int _aboutSignatureTapCount;
+    private bool _botTokenVisible;
+    private bool _syncingRevealText;
+    private bool _allowCloseWithoutSettingsPrompt;
+    private SettingsSnapshot? _initialSettingsSnapshot;
+
+    [DllImport("user32.dll")]
+    private static extern bool ReleaseCapture();
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
     public SettingsWindow(
         bool hasStoredToken,
@@ -42,17 +62,24 @@ public partial class SettingsWindow : Window
         string syncServerUrl,
         string syncUsername,
         string syncTelegramUserId,
-        bool hasStoredSyncSession)
+        bool hasStoredSyncSession,
+        bool checkUpdatesAutomatically)
     {
         InitializeComponent();
         ApplyWindowSizingConstraints();
+        Loaded += OnLoaded;
+        Closing += OnWindowClosing;
+        PreviewKeyDown += OnWindowPreviewKeyDown;
+        SizeChanged += (_, _) => UpdateRoundedShellClip();
+        SettingsShell.SizeChanged += (_, _) => UpdateRoundedShellClip();
 
         _startupRegistrationService = (System.Windows.Application.Current as App)?.StartupRegistrationService
             ?? new StartupRegistrationService();
 
         _hasStoredToken = hasStoredToken;
-        ChatIdTextBox.Text = chatId;
-        UserIdTextBox.Text = userId;
+        TelegramTargetTextBox.Text = !string.IsNullOrWhiteSpace(chatId)
+            ? chatId.Trim()
+            : userId.Trim();
         EnableHotKeyCheckBox.IsChecked = hotKeyEnabled;
         HotKeyGestureTextBox.Text = string.IsNullOrWhiteSpace(hotKeyGesture)
             ? HotKeyBinding.DefaultGesture
@@ -61,50 +88,83 @@ public partial class SettingsWindow : Window
         SyncUsernameTextBox.Text = syncUsername;
         SyncTelegramUserIdTextBox.Text = syncTelegramUserId;
         _hasStoredSyncSession = hasStoredSyncSession;
-
-        if (!string.IsNullOrWhiteSpace(ChatIdTextBox.Text) && !string.IsNullOrWhiteSpace(UserIdTextBox.Text))
-        {
-            UserIdTextBox.Text = string.Empty;
-        }
+        EnableUpdateCheckBox.IsChecked = checkUpdatesAutomatically;
 
         UpdateTargetFieldsState();
         UpdateHotKeyControlsState();
         _startupEnabled = _startupRegistrationService.IsEnabled();
         UpdateStartupControlsState();
         UpdateSyncControlsState();
+        UpdateVisualStatusSummaries();
         AppVersionValueText.Text = ResolveAppVersion();
 
-        if (!hasStoredToken)
+        if (hasStoredToken)
         {
-            return;
+            _suppressPasswordChanged = true;
+            BotTokenPasswordBox.Password = MaskPlaceholder;
+            BotTokenRevealTextBox.Text = MaskPlaceholder;
+            _suppressPasswordChanged = false;
+            _placeholderActive = true;
         }
 
-        _suppressPasswordChanged = true;
-        BotTokenPasswordBox.Password = MaskPlaceholder;
-        _suppressPasswordChanged = false;
-        _placeholderActive = true;
+        _initialSettingsSnapshot = CaptureSettingsSnapshot();
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        UpdateRoundedShellClip();
+        StartEntranceAnimation();
+    }
+
+    private void StartEntranceAnimation()
+    {
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        var duration = TimeSpan.FromMilliseconds(220);
+
+        BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration)
+        {
+            EasingFunction = ease
+        });
+
+        SettingsShellScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0.985, 1, duration)
+        {
+            EasingFunction = ease
+        });
+        SettingsShellScale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(0.985, 1, duration)
+        {
+            EasingFunction = ease
+        });
+        SettingsShellTranslate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(10, 0, duration)
+        {
+            EasingFunction = ease
+        });
     }
 
     private void ApplyWindowSizingConstraints()
     {
-        var workAreaHeight = SystemParameters.WorkArea.Height;
-        if (workAreaHeight <= 0)
+        var workArea = SystemParameters.WorkArea;
+        if (workArea.Width <= 0 || workArea.Height <= 0)
         {
             return;
         }
 
-        var maxVisibleHeight = Math.Max(620, workAreaHeight - 8);
-        MaxHeight = maxVisibleHeight;
+        MaxWidth = Math.Max(MinWidth, workArea.Width - 32);
+        MaxHeight = Math.Max(MinHeight, workArea.Height - 32);
 
-        if (MinHeight > maxVisibleHeight)
+        if (Width > MaxWidth)
         {
-            MinHeight = maxVisibleHeight;
+            Width = MaxWidth;
+        }
+
+        if (Height > MaxHeight)
+        {
+            Height = MaxHeight;
         }
     }
 
     public string? BotTokenForSave => KeepExistingToken ? null : BotTokenPasswordBox.Password.Trim();
-    public string ChatId => ChatIdTextBox.Text.Trim();
-    public string UserId => UserIdTextBox.Text.Trim();
+    public string ChatId => string.Empty;
+    public string UserId => TelegramTargetTextBox.Text.Trim();
     public string SyncServerUrl => SyncServerUrlTextBox.Text.Trim();
     public string SyncUsername => SyncUsernameTextBox.Text.Trim();
     public string SyncTelegramUserId => SyncTelegramUserIdTextBox.Text.Trim();
@@ -112,29 +172,169 @@ public partial class SettingsWindow : Window
     public string HotKeyGesture => string.IsNullOrWhiteSpace(HotKeyGestureTextBox.Text)
         ? HotKeyBinding.DefaultGesture
         : HotKeyGestureTextBox.Text.Trim();
+    public bool CheckUpdatesAutomatically => EnableUpdateCheckBox.IsChecked == true;
     public bool KeepExistingToken => _hasStoredToken && !_tokenChanged;
 
+    private void UpdateRoundedShellClip()
+    {
+        if (SettingsShell.ActualWidth <= 0 || SettingsShell.ActualHeight <= 0)
+        {
+            return;
+        }
+
+        const double radius = 22.0;
+        var rect = new Rect(0, 0, SettingsShell.ActualWidth, SettingsShell.ActualHeight);
+        SettingsShell.Clip = new RectangleGeometry(rect, radius, radius);
+
+        if (SettingsShellContent.ActualWidth > 0 && SettingsShellContent.ActualHeight > 0)
+        {
+            SettingsShellContent.Clip = new RectangleGeometry(
+                new Rect(0, 0, SettingsShellContent.ActualWidth, SettingsShellContent.ActualHeight),
+                radius,
+                radius);
+        }
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        // Do not use SetWindowRgn/CreateRoundRectRgn here. GDI regions are binary masks and
+        // create jagged, pixelated rounded corners on dark backgrounds. The transparent WPF
+        // shell below draws the rounded corners with anti-aliasing instead.
+    }
+
     private void OnTitleBarMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Left || e.ButtonState != MouseButtonState.Pressed)
+        {
+            return;
+        }
+
+        if (IsInteractiveElement(e.OriginalSource as DependencyObject))
+        {
+            return;
+        }
+
+        // For a transparent, borderless WPF window DragMove() is more reliable than
+        // emulating the native caption message. Keep the native path only as fallback.
+        try
+        {
+            DragMove();
+            e.Handled = true;
+            return;
+        }
+        catch
+        {
+            // Fall back to native caption dragging below.
+        }
+
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        ReleaseCapture();
+        SendMessage(handle, WmNcLeftButtonDown, (IntPtr)HtCaption, IntPtr.Zero);
+        e.Handled = true;
+    }
+
+    private void OnResizeGripMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ButtonState != MouseButtonState.Pressed)
         {
             return;
         }
 
-        try
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero)
         {
-            DragMove();
+            return;
         }
-        catch
+
+        ReleaseCapture();
+        SendMessage(handle, WmSysCommand, (IntPtr)(ScSize + WmszBottomRight), IntPtr.Zero);
+        e.Handled = true;
+    }
+
+    private static bool IsInteractiveElement(DependencyObject? source)
+    {
+        while (source is not null)
         {
-            // Ignore drag race conditions.
+            if (source is System.Windows.Controls.Button
+                or System.Windows.Controls.TextBox
+                or System.Windows.Controls.PasswordBox
+                or System.Windows.Controls.CheckBox
+                or System.Windows.Controls.RadioButton
+                or System.Windows.Controls.ComboBox
+                or System.Windows.Controls.Primitives.ScrollBar
+                or System.Windows.Controls.Primitives.ResizeGrip)
+            {
+                return true;
+            }
+
+            source = VisualTreeHelper.GetParent(source);
         }
+
+        return false;
     }
 
     private void OnCloseButtonClick(object sender, RoutedEventArgs e)
     {
+        RequestCloseWithoutSave();
+    }
+
+    private void OnCancelClick(object sender, RoutedEventArgs e)
+    {
+        RequestCloseWithoutSave();
+    }
+
+    private void OnWindowPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Escape)
+        {
+            return;
+        }
+
+        e.Handled = true;
+        RequestCloseWithoutSave();
+    }
+
+    private void OnWindowClosing(object? sender, CancelEventArgs e)
+    {
+        if (_allowCloseWithoutSettingsPrompt || !HasUnsavedSettingsChanges())
+        {
+            return;
+        }
+
+        e.Cancel = true;
+        if (!CanDiscardSettingsChanges())
+        {
+            return;
+        }
+
+        _allowCloseWithoutSettingsPrompt = true;
         DialogResult = false;
         Close();
+    }
+
+    private void OnNavigationChecked(object sender, RoutedEventArgs e)
+    {
+        if (TelegramPage is null || SyncPage is null || HotKeysPage is null || StartupPage is null || AboutPage is null)
+        {
+            return;
+        }
+
+        TelegramPage.Visibility = ReferenceEquals(sender, TelegramNavButton) ? Visibility.Visible : Visibility.Collapsed;
+        SyncPage.Visibility = ReferenceEquals(sender, SyncNavButton) ? Visibility.Visible : Visibility.Collapsed;
+        HotKeysPage.Visibility = ReferenceEquals(sender, HotKeysNavButton) ? Visibility.Visible : Visibility.Collapsed;
+        StartupPage.Visibility = ReferenceEquals(sender, StartupNavButton) ? Visibility.Visible : Visibility.Collapsed;
+        AboutPage.Visibility = ReferenceEquals(sender, AboutNavButton) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnOpenSyncSettingsClick(object sender, RoutedEventArgs e)
+    {
+        SyncNavButton.IsChecked = true;
     }
 
     private void OnAboutSignatureMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -181,11 +381,61 @@ public partial class SettingsWindow : Window
 
         _placeholderActive = false;
         _tokenChanged = true;
+        if (!_syncingRevealText)
+        {
+            _syncingRevealText = true;
+            BotTokenRevealTextBox.Text = BotTokenPasswordBox.Password;
+            _syncingRevealText = false;
+        }
+        UpdateVisualStatusSummaries();
+    }
+
+    private void OnBotTokenRevealTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_syncingRevealText || _suppressPasswordChanged)
+        {
+            return;
+        }
+
+        if (_placeholderActive && BotTokenRevealTextBox.Text == MaskPlaceholder)
+        {
+            return;
+        }
+
+        _placeholderActive = false;
+        _tokenChanged = true;
+        _syncingRevealText = true;
+        BotTokenPasswordBox.Password = BotTokenRevealTextBox.Text;
+        _syncingRevealText = false;
+        UpdateVisualStatusSummaries();
+    }
+
+    private void OnBotTokenVisibilityClick(object sender, RoutedEventArgs e)
+    {
+        _botTokenVisible = !_botTokenVisible;
+        if (_botTokenVisible)
+        {
+            _syncingRevealText = true;
+            BotTokenRevealTextBox.Text = BotTokenPasswordBox.Password;
+            _syncingRevealText = false;
+            BotTokenPasswordBox.Visibility = Visibility.Collapsed;
+            BotTokenRevealTextBox.Visibility = Visibility.Visible;
+            BotTokenRevealTextBox.Focus();
+            BotTokenRevealTextBox.SelectAll();
+            BotTokenVisibilityButton.Content = "";
+            return;
+        }
+
+        BotTokenPasswordBox.Visibility = Visibility.Visible;
+        BotTokenRevealTextBox.Visibility = Visibility.Collapsed;
+        BotTokenPasswordBox.Focus();
+        BotTokenVisibilityButton.Content = "";
     }
 
     private void OnTargetTextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
     {
         UpdateTargetFieldsState();
+        UpdateVisualStatusSummaries();
     }
 
     private void OnHotKeyEnabledClick(object sender, RoutedEventArgs e)
@@ -279,6 +529,7 @@ public partial class SettingsWindow : Window
         SyncUsernameTextBox.Text = username;
         SetSyncStatus(registerDialog.SuccessMessage ?? Loc.Text("SyncRegisterStatusSubmitted"), isError: false, useAccent: true);
         PersistSyncIdentityToSettings(app, serverBaseUri, username);
+        _initialSettingsSnapshot = CaptureSettingsSnapshot();
     }
 
     private async void OnSyncLoginClick(object sender, RoutedEventArgs e)
@@ -337,6 +588,7 @@ public partial class SettingsWindow : Window
             }
 
             PersistSyncIdentityToSettings(app, serverBaseUri, username);
+            _initialSettingsSnapshot = CaptureSettingsSnapshot();
             await app.SyncReminderService.EnsureInitialLocalPublishAsync();
             app.SyncReminderService.SignalSync();
             app.SaveSettings();
@@ -382,11 +634,6 @@ public partial class SettingsWindow : Window
 
     private void OnSaveClick(object sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrWhiteSpace(ChatId) && !string.IsNullOrWhiteSpace(UserId))
-        {
-            UserIdTextBox.Text = string.Empty;
-        }
-
         if (HotKeyEnabled)
         {
             if (!HotKeyBinding.TryParse(HotKeyGestureTextBox.Text, out _, out _, out var normalized))
@@ -416,6 +663,8 @@ public partial class SettingsWindow : Window
             }
         }
 
+        _allowCloseWithoutSettingsPrompt = true;
+        _initialSettingsSnapshot = CaptureSettingsSnapshot();
         DialogResult = true;
         Close();
     }
@@ -451,6 +700,81 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private async void OnCheckUpdatesClick(object sender, RoutedEventArgs e)
+    {
+        var app = (App)System.Windows.Application.Current;
+        CheckUpdatesButton.IsEnabled = false;
+        try
+        {
+            await app.CheckForUpdatesInteractiveAsync(showUpToDateMessage: true);
+        }
+        finally
+        {
+            CheckUpdatesButton.IsEnabled = true;
+        }
+    }
+
+    private void RequestCloseWithoutSave()
+    {
+        if (!CanDiscardSettingsChanges())
+        {
+            return;
+        }
+
+        _allowCloseWithoutSettingsPrompt = true;
+        DialogResult = false;
+        Close();
+    }
+
+    private bool CanDiscardSettingsChanges()
+    {
+        if (_allowCloseWithoutSettingsPrompt || !HasUnsavedSettingsChanges())
+        {
+            return true;
+        }
+
+        var dialog = new ConfirmDialogWindow(
+            "Закрыть без сохранения?",
+            "В настройках есть несохранённые изменения. Закрыть окно и потерять их?",
+            "Закрыть без сохранения",
+            destructive: true,
+            cancelText: "Продолжить настройку")
+        {
+            Owner = this
+        };
+
+        return dialog.ShowDialog() == true;
+    }
+
+    private bool HasUnsavedSettingsChanges()
+    {
+        return _initialSettingsSnapshot is not null
+            && !_initialSettingsSnapshot.Equals(CaptureSettingsSnapshot());
+    }
+
+    private SettingsSnapshot CaptureSettingsSnapshot()
+    {
+        return new SettingsSnapshot(
+            Token: ResolveTokenForSnapshot(),
+            TelegramTarget: TelegramTargetTextBox.Text.Trim(),
+            HotKeyEnabled: HotKeyEnabled,
+            HotKeyGesture: HotKeyGesture,
+            SyncServerUrl: SyncServerUrl,
+            SyncUsername: SyncUsername,
+            SyncTelegramUserId: SyncTelegramUserId,
+            CheckUpdatesAutomatically: CheckUpdatesAutomatically);
+    }
+
+    private string? ResolveTokenForSnapshot()
+    {
+        if (_hasStoredToken && !_tokenChanged)
+        {
+            return null;
+        }
+
+        return BotTokenPasswordBox.Password.Trim();
+    }
+
     private string? ResolveTokenForTest(App app)
     {
         if (_tokenChanged)
@@ -470,29 +794,13 @@ public partial class SettingsWindow : Window
 
     private string? GetTargetId()
     {
-        if (!string.IsNullOrWhiteSpace(ChatId))
-        {
-            return ChatId;
-        }
-
-        if (!string.IsNullOrWhiteSpace(UserId))
-        {
-            return UserId;
-        }
-
-        return null;
+        var target = TelegramTargetTextBox.Text.Trim();
+        return string.IsNullOrWhiteSpace(target) ? null : target;
     }
 
     private void UpdateTargetFieldsState()
     {
-        var hasChat = !string.IsNullOrWhiteSpace(ChatId);
-        var hasUser = !string.IsNullOrWhiteSpace(UserId);
-
-        UserIdTextBox.IsEnabled = !hasChat;
-        ChatIdTextBox.IsEnabled = !hasUser;
-
-        UserIdTextBox.ToolTip = hasChat ? Loc.Text("SettingsTooltipClearChatId") : null;
-        ChatIdTextBox.ToolTip = hasUser ? Loc.Text("SettingsTooltipClearUserId") : null;
+        TelegramTargetTextBox.ToolTip = Loc.Text("SettingsHintTelegramTarget");
     }
 
     private void UpdateHotKeyControlsState()
@@ -508,6 +816,7 @@ public partial class SettingsWindow : Window
         StartupStatusText.Text = _startupEnabled
             ? Loc.Text("SettingsStartupStatusOn")
             : Loc.Text("SettingsStartupStatusOff");
+        UpdateVisualStatusSummaries();
     }
 
     private void UpdateSyncControlsState()
@@ -524,6 +833,74 @@ public partial class SettingsWindow : Window
         SyncLogoutButton.IsEnabled = !_syncBusy && _hasStoredSyncSession;
         SyncLoginButton.IsEnabled = !_syncBusy;
         SyncRegisterButton.IsEnabled = !_syncBusy;
+        UpdateVisualStatusSummaries();
+    }
+
+    private void UpdateVisualStatusSummaries()
+    {
+        if (TelegramStatusBadge is null)
+        {
+            return;
+        }
+
+        var telegramConfigured = IsTelegramConfiguredForDisplay();
+        SetBadge(
+            TelegramStatusBadge,
+            TelegramStatusText,
+            telegramConfigured ? Loc.Text("SettingsTelegramStatusConfigured") : Loc.Text("SettingsTelegramStatusMissing"),
+            telegramConfigured);
+
+        SetBadge(
+            SyncSummaryStatusBadge,
+            SyncSummaryStatusText,
+            _hasStoredSyncSession ? Loc.Text("SettingsSyncSummaryAvailable") : Loc.Text("SettingsSyncStatusSessionMissing"),
+            _hasStoredSyncSession);
+
+        SetBadge(
+            SyncPageStatusBadge,
+            SyncPageStatusBadgeText,
+            _hasStoredSyncSession ? Loc.Text("SettingsSyncStatusSessionActive") : Loc.Text("SettingsSyncStatusSessionMissing"),
+            _hasStoredSyncSession);
+
+        SetBadge(
+            StartupStatusBadge,
+            StartupStatusText,
+            _startupEnabled ? Loc.Text("SettingsStartupStatusOn") : Loc.Text("SettingsStartupStatusOff"),
+            _startupEnabled);
+
+        SyncSummaryServerText.Text = MaskDisplayValue(SyncServerUrlTextBox?.Text);
+        SyncSummaryLoginText.Text = MaskDisplayValue(SyncUsernameTextBox?.Text);
+        SyncSummaryAlertIdText.Text = MaskDisplayValue(SyncTelegramUserIdTextBox?.Text);
+    }
+
+    private bool IsTelegramConfiguredForDisplay()
+    {
+        var hasToken = _hasStoredToken || (!string.IsNullOrWhiteSpace(BotTokenPasswordBox.Password) && !_placeholderActive);
+        var hasTarget = !string.IsNullOrWhiteSpace(TelegramTargetTextBox.Text);
+        return hasToken && hasTarget;
+    }
+
+    private void SetBadge(Border badge, TextBlock textBlock, string text, bool success)
+    {
+        badge.Background = (System.Windows.Media.Brush)FindResource(success ? "StatusAckBadgeBrush" : "StatusDefaultBadgeBrush");
+        badge.BorderBrush = (System.Windows.Media.Brush)FindResource(success ? "StatusAckBadgeBrush" : "BorderBrushLight");
+        textBlock.Text = text;
+    }
+
+    private static string MaskDisplayValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Loc.Text("SettingsValueNotSet");
+        }
+
+        var trimmed = value.Trim();
+        if (trimmed.Length <= 6)
+        {
+            return trimmed;
+        }
+
+        return $"{trimmed[..Math.Min(8, trimmed.Length)]}••••";
     }
 
     private void SetSyncBusyState(bool busy)
@@ -745,6 +1122,7 @@ public partial class SettingsWindow : Window
         SyncRegisterButton.IsEnabled = !testing && !_syncBusy;
         SyncLoginButton.IsEnabled = !testing && !_syncBusy;
         SyncLogoutButton.IsEnabled = !testing && !_syncBusy && _hasStoredSyncSession;
+        CheckUpdatesButton.IsEnabled = !testing;
     }
 
     private void ShowInfoDialog(string title, string message)
@@ -801,5 +1179,15 @@ public partial class SettingsWindow : Window
 
         return Loc.Text("SyncCommonStatusUnknownError");
     }
-}
 
+    private sealed record SettingsSnapshot(
+        string? Token,
+        string TelegramTarget,
+        bool HotKeyEnabled,
+        string HotKeyGesture,
+        string SyncServerUrl,
+        string SyncUsername,
+        string SyncTelegramUserId,
+        bool CheckUpdatesAutomatically);
+
+}

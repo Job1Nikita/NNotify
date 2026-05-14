@@ -1,0 +1,113 @@
+<Window x:Class="NNotify.Windows.UpdateAvailableWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:NNotify.Localization"
+        Title="{loc:Loc UpdateWindowTitle}"
+        Height="298"
+        Width="668"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Opacity="0">
+    <Grid x:Name="DialogSurface"
+          Background="Transparent"
+          RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform x:Name="DialogScale" ScaleX="0.985" ScaleY="0.985" />
+                <TranslateTransform x:Name="DialogTranslate" Y="10" />
+            </TransformGroup>
+        </Grid.RenderTransform>
+        <Border Style="{StaticResource PanelCardStyle}" Margin="0" Padding="0" Effect="{x:Null}">
+            <Grid>
+                <Grid x:Name="DragRegion"
+                      Height="44"
+                      VerticalAlignment="Top"
+                      Background="Transparent"
+                      MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                    <Button HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0,10,12,0"
+                            Style="{StaticResource TitleBarCloseButtonStyle}"
+                            Content="&#xE8BB;"
+                            Click="OnCloseButtonClick" />
+                </Grid>
+
+                <Grid Margin="20,24,20,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="{loc:Loc UpdateHeading}"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Margin="0,0,56,8" />
+
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource HoverBrush}"
+                            BorderBrush="{DynamicResource BorderBrushLight}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="12,10"
+                            Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{loc:Loc UpdateCurrentVersionLabel}" Foreground="{DynamicResource SecondaryTextBrush}" />
+                                <TextBlock x:Name="CurrentVersionText" FontWeight="Bold" FontSize="16" Margin="2,2,2,0" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{loc:Loc UpdateLatestVersionLabel}" Foreground="{DynamicResource SecondaryTextBrush}" />
+                                <TextBlock x:Name="LatestVersionText" FontWeight="Bold" FontSize="16" Margin="2,2,2,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Grid.Row="2"
+                               Text="{loc:Loc UpdateManualInstruction}"
+                               TextWrapping="Wrap"
+                               FontSize="14"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               Margin="0,0,0,8" />
+
+                    <Grid Grid.Row="3" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="{loc:Loc UpdateButtonIgnoreVersion}"
+                                Width="240"
+                                HorizontalAlignment="Left"
+                                Click="OnIgnoreClick" />
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{loc:Loc UpdateButtonLater}"
+                                    Width="150"
+                                    Click="OnLaterClick" />
+                            <Button Width="200"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Click="OnOpenClick">
+                                <TextBlock Text="{loc:Loc UpdateButtonOpen}" Foreground="#F4FAFF" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

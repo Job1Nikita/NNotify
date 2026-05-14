@@ -1,7 +1,9 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using NNotify.Localization;
 using NNotify.Models;
 
@@ -11,16 +13,27 @@ public partial class AddEditReminderWindow : Window
 {
     private readonly Reminder? _existingReminder;
     private readonly bool _focusTitleOnLoad;
+    private readonly bool _warnAboutDraftOnClose;
+    private bool _allowCloseWithoutDraftPrompt;
     private int _selectedPriority = 1;
+    private bool _priorityPillInitialized;
+    private bool _isUpdatingTimeWheelSelection;
+    private bool _dueDatePopupWasOpenOnPress;
+    private bool _timePopupWasOpenOnPress;
 
     public AddEditReminderWindow(Reminder? reminder = null, bool createFromTemplate = false)
     {
         InitializeComponent();
+        TitleTextBox.TextChanged += OnTitleTextChanged;
+        DueDatePickerHost.PreviewMouseLeftButtonDown += OnDueDatePickerHostPreviewMouseLeftButtonDown;
+        TimePickerHost.PreviewMouseLeftButtonDown += OnTimePickerHostPreviewMouseLeftButtonDown;
         ConfigureDatePickerBounds();
         Loaded += OnWindowLoaded;
+        PreviewKeyDown += OnWindowPreviewKeyDown;
 
         _existingReminder = createFromTemplate ? null : reminder;
         _focusTitleOnLoad = reminder is null;
+        _warnAboutDraftOnClose = _existingReminder is null;
         _selectedPriority = reminder?.Priority ?? 1;
         SetPriority(_selectedPriority);
 
@@ -51,6 +64,13 @@ public partial class AddEditReminderWindow : Window
 
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
+        ModalDialogAnimator.StartEntrance(this, DialogScale, DialogTranslate);
+        UpdateTitlePlaceholderVisibility();
+        PrioritySegmentHost.SizeChanged += OnPrioritySegmentHostSizeChanged;
+        Dispatcher.BeginInvoke(
+            System.Windows.Threading.DispatcherPriority.Render,
+            new Action(() => UpdatePrioritySelectionPill(false)));
+
         if (!_focusTitleOnLoad)
         {
             return;
@@ -64,6 +84,18 @@ public partial class AddEditReminderWindow : Window
                 Keyboard.Focus(TitleTextBox);
                 TitleTextBox.SelectAll();
             }));
+    }
+
+    private void OnTitleTextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdateTitlePlaceholderVisibility();
+    }
+
+    private void UpdateTitlePlaceholderVisibility()
+    {
+        TitlePlaceholderText.Visibility = string.IsNullOrEmpty(TitleTextBox.Text)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     private void OnTitleBarMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -83,10 +115,25 @@ public partial class AddEditReminderWindow : Window
         }
     }
 
+    private void OnWindowPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Escape)
+        {
+            return;
+        }
+
+        e.Handled = true;
+        RequestCloseWithoutSave();
+    }
+
     private void OnCloseButtonClick(object sender, RoutedEventArgs e)
     {
-        DialogResult = false;
-        Close();
+        RequestCloseWithoutSave();
+    }
+
+    private void OnCancelClick(object sender, RoutedEventArgs e)
+    {
+        RequestCloseWithoutSave();
     }
 
     private void OnPlus3Click(object sender, RoutedEventArgs e)
@@ -175,6 +222,7 @@ public partial class AddEditReminderWindow : Window
                 TelegramEscalatedAtUtc = null
             };
 
+        _allowCloseWithoutDraftPrompt = true;
         DialogResult = true;
         Close();
     }
@@ -195,8 +243,19 @@ public partial class AddEditReminderWindow : Window
         UpdateDueDateText();
     }
 
+    private void OnDueDatePickerHostPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _dueDatePopupWasOpenOnPress = DueDatePopup.IsOpen;
+    }
+
     private void OnDueDateBorderMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        if (e.OriginalSource is DependencyObject source &&
+            FindVisualParent<System.Windows.Controls.Button>(source) is not null)
+        {
+            return;
+        }
+
         ToggleDueDatePopup();
         e.Handled = true;
     }
@@ -204,6 +263,7 @@ public partial class AddEditReminderWindow : Window
     private void OnDueDateDropDownButtonClick(object sender, RoutedEventArgs e)
     {
         ToggleDueDatePopup();
+        e.Handled = true;
     }
 
     private void OnDueDateCalendarSelectedDatesChanged(object sender, SelectionChangedEventArgs e)
@@ -225,16 +285,128 @@ public partial class AddEditReminderWindow : Window
         DueDatePopup.IsOpen = false;
     }
 
+    private void OnDueDateCalendarPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        var current = DueDateCalendar.DisplayDate;
+        DueDateCalendar.DisplayDate = e.Delta > 0
+            ? current.AddMonths(-1)
+            : current.AddMonths(1);
+        e.Handled = true;
+    }
+
     private void ToggleDueDatePopup()
     {
-        DueDatePopup.IsOpen = !DueDatePopup.IsOpen;
-        if (!DueDatePopup.IsOpen)
+        var shouldClose = _dueDatePopupWasOpenOnPress || DueDatePopup.IsOpen;
+        _dueDatePopupWasOpenOnPress = false;
+
+        if (shouldClose)
+        {
+            DueDatePopup.IsOpen = false;
+            return;
+        }
+
+        TimePopup.IsOpen = false;
+        DueDateCalendar.DisplayDate = DueDateCalendar.SelectedDate ?? DateTime.Today;
+        DueDatePopup.IsOpen = true;
+        DueDateCalendar.Focus();
+    }
+
+    private void OnTimePickerHostPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _timePopupWasOpenOnPress = TimePopup.IsOpen;
+    }
+
+    private void OnTimePickerBorderMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is DependencyObject source &&
+            (FindVisualParent<System.Windows.Controls.TextBox>(source) is not null ||
+             FindVisualParent<System.Windows.Controls.Button>(source) is not null))
         {
             return;
         }
 
-        DueDateCalendar.DisplayDate = DueDateCalendar.SelectedDate ?? DateTime.Today;
-        DueDateCalendar.Focus();
+        ToggleTimePopup();
+        e.Handled = true;
+    }
+
+    private void OnTimeDropDownButtonClick(object sender, RoutedEventArgs e)
+    {
+        ToggleTimePopup();
+        e.Handled = true;
+    }
+
+    private void ToggleTimePopup()
+    {
+        var shouldClose = _timePopupWasOpenOnPress || TimePopup.IsOpen;
+        _timePopupWasOpenOnPress = false;
+
+        if (shouldClose)
+        {
+            TimePopup.IsOpen = false;
+            return;
+        }
+
+        DueDatePopup.IsOpen = false;
+        PopulateTimeWheelOptions();
+        TimePopup.IsOpen = true;
+        HourOptionsListBox.Focus();
+    }
+
+    private void PopulateTimeWheelOptions()
+    {
+        if (!TryReadSpinnerTime(out var current))
+        {
+            current = DateTime.Now.TimeOfDay;
+            ApplyTimeToSpinner(current);
+        }
+
+        var hourOptions = Enumerable.Range(0, 24).Select(hour => $"{hour:00}").ToArray();
+        var minuteOptions = Enumerable.Range(0, 12).Select(index => $"{index * 5:00}").ToArray();
+
+        HourOptionsListBox.ItemsSource = hourOptions;
+        MinuteOptionsListBox.ItemsSource = minuteOptions;
+
+        _isUpdatingTimeWheelSelection = true;
+        HourOptionsListBox.SelectedItem = $"{current.Hours:00}";
+        var roundedMinute = (int)Math.Round(current.Minutes / 5.0, MidpointRounding.AwayFromZero) * 5;
+        if (roundedMinute >= 60)
+        {
+            roundedMinute = 55;
+        }
+        MinuteOptionsListBox.SelectedItem = $"{roundedMinute:00}";
+        _isUpdatingTimeWheelSelection = false;
+
+        HourOptionsListBox.ScrollIntoView(HourOptionsListBox.SelectedItem);
+        MinuteOptionsListBox.ScrollIntoView(MinuteOptionsListBox.SelectedItem);
+        UpdateTimeWheelHeader();
+    }
+
+    private void OnHourOptionSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isUpdatingTimeWheelSelection || HourOptionsListBox.SelectedItem is not string hourText || !int.TryParse(hourText, out var hour))
+        {
+            return;
+        }
+
+        ApplyTimeToSpinner(new TimeSpan(hour, GetMinuteOrDefault(), 0));
+        UpdateTimeWheelHeader();
+    }
+
+    private void OnMinuteOptionSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isUpdatingTimeWheelSelection || MinuteOptionsListBox.SelectedItem is not string minuteText || !int.TryParse(minuteText, out var minute))
+        {
+            return;
+        }
+
+        ApplyTimeToSpinner(new TimeSpan(GetHourOrDefault(), minute, 0));
+        UpdateTimeWheelHeader();
+    }
+
+    private void UpdateTimeWheelHeader()
+    {
+        PopupHourText.Text = $"{GetHourOrDefault():00}";
+        PopupMinuteText.Text = $"{GetMinuteOrDefault():00}";
     }
 
     private void UpdateDueDateText()
@@ -265,6 +437,52 @@ public partial class AddEditReminderWindow : Window
         PriorityP0Button.IsChecked = _selectedPriority == 0;
         PriorityP1Button.IsChecked = _selectedPriority == 1;
         PriorityP2Button.IsChecked = _selectedPriority == 2;
+        UpdatePrioritySelectionPill(true);
+    }
+
+    private void OnPrioritySegmentHostSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        UpdatePrioritySelectionPill(false);
+    }
+
+    private void UpdatePrioritySelectionPill(bool animated)
+    {
+        if (PrioritySegmentHost is null || PrioritySelectionTranslate is null || PrioritySelectionPill is null)
+        {
+            return;
+        }
+
+        var segmentWidth = (PrioritySegmentHost.ActualWidth - 4) / 3.0;
+        if (segmentWidth <= 0)
+        {
+            return;
+        }
+
+        var targetX = segmentWidth * _selectedPriority;
+
+        if (!animated)
+        {
+            PrioritySelectionTranslate.X = targetX;
+            PrioritySelectionPill.Opacity = 1;
+            _priorityPillInitialized = true;
+            return;
+        }
+
+        if (!_priorityPillInitialized)
+        {
+            PrioritySelectionTranslate.X = targetX;
+            PrioritySelectionPill.Opacity = 1;
+            _priorityPillInitialized = true;
+            return;
+        }
+
+        var animation = new DoubleAnimation
+        {
+            To = targetX,
+            Duration = TimeSpan.FromMilliseconds(190),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+        PrioritySelectionTranslate.BeginAnimation(TranslateTransform.XProperty, animation, HandoffBehavior.SnapshotAndReplace);
     }
 
     private void OnHourUpClick(object sender, RoutedEventArgs e)
@@ -377,13 +595,13 @@ public partial class AddEditReminderWindow : Window
     private void AdjustHour(int delta)
     {
         var hour = Wrap(GetHourOrDefault() + delta, 0, 23);
-        HourTextBox.Text = $"{hour:00}";
+        ApplyTimeToSpinner(new TimeSpan(hour, GetMinuteOrDefault(), 0));
     }
 
     private void AdjustMinute(int delta)
     {
         var minute = Wrap(GetMinuteOrDefault() + delta, 0, 59);
-        MinuteTextBox.Text = $"{minute:00}";
+        ApplyTimeToSpinner(new TimeSpan(GetHourOrDefault(), minute, 0));
     }
 
     private bool TryReadSpinnerTime(out TimeSpan time)
@@ -424,6 +642,8 @@ public partial class AddEditReminderWindow : Window
     {
         HourTextBox.Text = $"{time.Hours:00}";
         MinuteTextBox.Text = $"{time.Minutes:00}";
+        PopupHourText.Text = $"{time.Hours:00}";
+        PopupMinuteText.Text = $"{time.Minutes:00}";
     }
 
     private void NormalizeHourTextBox()
@@ -432,6 +652,7 @@ public partial class AddEditReminderWindow : Window
             ? hour
             : GetHourOrDefault();
         HourTextBox.Text = $"{normalized:00}";
+        UpdateTimeDisplay();
     }
 
     private void NormalizeMinuteTextBox()
@@ -440,6 +661,12 @@ public partial class AddEditReminderWindow : Window
             ? minute
             : GetMinuteOrDefault();
         MinuteTextBox.Text = $"{normalized:00}";
+        UpdateTimeDisplay();
+    }
+
+    private void UpdateTimeDisplay()
+    {
+        // Time is displayed directly by HourTextBox/MinuteTextBox.
     }
 
     private int GetHourOrDefault()
@@ -474,6 +701,22 @@ public partial class AddEditReminderWindow : Window
         return shifted + minValue;
     }
 
+    private static T? FindVisualParent<T>(DependencyObject? source)
+        where T : DependencyObject
+    {
+        while (source is not null)
+        {
+            if (source is T match)
+            {
+                return match;
+            }
+
+            source = VisualTreeHelper.GetParent(source);
+        }
+
+        return null;
+    }
+
     private void ShowValidationDialog(string message)
     {
         var dialog = new ConfirmDialogWindow(
@@ -487,6 +730,50 @@ public partial class AddEditReminderWindow : Window
         };
 
         dialog.ShowDialog();
+    }
+
+    private void RequestCloseWithoutSave()
+    {
+        if (!CanDiscardDraft())
+        {
+            return;
+        }
+
+        _allowCloseWithoutDraftPrompt = true;
+        DialogResult = false;
+        Close();
+    }
+
+    private bool CanDiscardDraft()
+    {
+        if (_allowCloseWithoutDraftPrompt || !HasUnsavedDraft())
+        {
+            return true;
+        }
+
+        var dialog = new ConfirmDialogWindow(
+            Loc.Text("AddEditDiscardDraftTitle"),
+            Loc.Text("AddEditDiscardDraftMessage"),
+            Loc.Text("AddEditDiscardDraftConfirm"),
+            destructive: true,
+            cancelText: Loc.Text("AddEditDiscardDraftContinue"))
+        {
+            Owner = this
+        };
+
+        return dialog.ShowDialog() == true;
+    }
+
+    private bool HasUnsavedDraft()
+    {
+        return _warnAboutDraftOnClose && !string.IsNullOrWhiteSpace(TitleTextBox.Text);
+    }
+
+    private sealed class TimeOptionItem(TimeSpan value)
+    {
+        public TimeSpan Value { get; } = value;
+
+        public string Display => $"{Value.Hours:00}:{Value.Minutes:00}";
     }
 }
 

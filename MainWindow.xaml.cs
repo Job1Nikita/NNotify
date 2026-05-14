@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -18,18 +18,19 @@ namespace NNotify;
 public partial class MainWindow : Window
 {
     private const int HotKeyId = 2001;
-    private static readonly double[] UpcomingPreferredWidths = [166, 94, 300, 138];
-    private static readonly double[] UpcomingMinWidths = [108, 78, 150, 96];
-    private static readonly double[] MissedPreferredWidths = [156, 98, 255];
-    private static readonly double[] MissedMinWidths = [108, 78, 140];
-    private static readonly double[] HistoryPreferredWidths = [168, 98, 424, 140, 160];
-    private static readonly double[] HistoryMinWidths = [120, 78, 170, 104, 110];
+    private static readonly double[] UpcomingPreferredWidths = [150, 104, 330, 142, 34];
+    private static readonly double[] UpcomingMinWidths = [118, 86, 190, 110, 34];
+    private static readonly double[] MissedPreferredWidths = [142, 100, 250, 34];
+    private static readonly double[] MissedMinWidths = [116, 86, 160, 34];
+    private static readonly double[] HistoryPreferredWidths = [150, 104, 420, 150, 170, 34];
+    private static readonly double[] HistoryMinWidths = [118, 86, 220, 116, 120, 34];
 
     private readonly ObservableCollection<Reminder> _upcoming = [];
     private readonly ObservableCollection<Reminder> _missed = [];
     private readonly ObservableCollection<Reminder> _history = [];
     private HotKeyManager? _hotKeyManager;
     private HwndSource? _hwndSource;
+    private int _modalBackdropDepth;
     private bool _entranceAnimationPlayed;
     private bool _hotKeyRegistrationFailed;
 
@@ -73,10 +74,13 @@ public partial class MainWindow : Window
 
         PrepareEntranceVisual(TitleBarCard);
         PrepareEntranceVisual(HeaderCard);
+        PrepareEntranceVisual(OverviewStrip);
         PrepareEntranceVisual(UpcomingCard);
         PrepareEntranceVisual(MissedCard);
+        PrepareEntranceVisual(InsightsCard);
         PrepareEntranceVisual(HistoryCard);
         PrepareEntranceVisual(FooterCard);
+        UpdateDashboardMetrics();
         UpdateQuickActionsVisibility();
     }
 
@@ -93,6 +97,7 @@ public partial class MainWindow : Window
             ReplaceCollection(_upcoming, upcoming);
             ReplaceCollection(_missed, missed);
             ReplaceCollection(_history, history);
+            UpdateDashboardMetrics();
             UpdateQuickActionsVisibility();
             ScheduleColumnAdjust();
         }
@@ -176,12 +181,15 @@ public partial class MainWindow : Window
             app.Settings.SyncServerUrl ?? string.Empty,
             app.Settings.SyncUsername ?? string.Empty,
             app.Settings.SyncTelegramUserId ?? app.Settings.TelegramUserId ?? string.Empty,
-            hasStoredSyncSession)
+            hasStoredSyncSession,
+            app.Settings.CheckUpdatesAutomatically)
         {
             Owner = this
         };
 
-        if (dialog.ShowDialog() != true)
+        var dialogResult = ShowDialogWithBackdrop(dialog);
+
+        if (dialogResult != true)
         {
             return;
         }
@@ -209,6 +217,7 @@ public partial class MainWindow : Window
         app.Settings.SyncServerUrl = string.IsNullOrWhiteSpace(dialog.SyncServerUrl) ? null : dialog.SyncServerUrl;
         app.Settings.SyncUsername = string.IsNullOrWhiteSpace(dialog.SyncUsername) ? null : dialog.SyncUsername;
         app.Settings.SyncTelegramUserId = string.IsNullOrWhiteSpace(dialog.SyncTelegramUserId) ? null : dialog.SyncTelegramUserId;
+        app.Settings.CheckUpdatesAutomatically = dialog.CheckUpdatesAutomatically;
 
         app.SaveSettings();
         app.SyncReminderService.SignalSync();
@@ -222,6 +231,72 @@ public partial class MainWindow : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+    }
+
+    public bool? ShowDialogWithBackdrop(Window dialog)
+    {
+        ShowModalBackdrop();
+        try
+        {
+            return dialog.ShowDialog();
+        }
+        finally
+        {
+            HideModalBackdrop();
+        }
+    }
+
+    private void ShowModalBackdrop()
+    {
+        _modalBackdropDepth++;
+        if (_modalBackdropDepth > 1)
+        {
+            return;
+        }
+
+        MainModalBackdrop.BeginAnimation(UIElement.OpacityProperty, null);
+        MainModalBackdrop.Opacity = 0;
+        MainModalBackdrop.Visibility = Visibility.Visible;
+
+        var animation = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(210))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        MainModalBackdrop.BeginAnimation(UIElement.OpacityProperty, animation);
+    }
+
+    private void HideModalBackdrop()
+    {
+        if (_modalBackdropDepth <= 0)
+        {
+            return;
+        }
+
+        _modalBackdropDepth--;
+        if (_modalBackdropDepth > 0)
+        {
+            return;
+        }
+
+        MainModalBackdrop.BeginAnimation(UIElement.OpacityProperty, null);
+
+        var animation = new DoubleAnimation(MainModalBackdrop.Opacity, 0, TimeSpan.FromMilliseconds(140))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+        animation.Completed += (_, _) =>
+        {
+            if (_modalBackdropDepth > 0)
+            {
+                return;
+            }
+
+            MainModalBackdrop.Visibility = Visibility.Collapsed;
+            MainModalBackdrop.Opacity = 0;
+        };
+
+        MainModalBackdrop.BeginAnimation(UIElement.OpacityProperty, animation);
     }
 
     private void OnTopmostToggle(object sender, RoutedEventArgs e)
@@ -430,6 +505,18 @@ public partial class MainWindow : Window
         ScheduleColumnAdjust();
     }
 
+    private void OnRoundedClipSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (sender is not FrameworkElement element ||
+            e.NewSize.Width <= 0 ||
+            e.NewSize.Height <= 0)
+        {
+            return;
+        }
+
+        element.Clip = new RectangleGeometry(new Rect(0, 0, e.NewSize.Width, e.NewSize.Height), 16, 16);
+    }
+
     private void OnUpcomingListSizeChanged(object sender, SizeChangedEventArgs e)
     {
         ScheduleColumnAdjust();
@@ -463,7 +550,8 @@ public partial class MainWindow : Window
 
     private void OnListViewPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.OriginalSource is not DependencyObject source)
+        if (sender is not System.Windows.Controls.ListView selectedList ||
+            e.OriginalSource is not DependencyObject source)
         {
             return;
         }
@@ -471,15 +559,58 @@ public partial class MainWindow : Window
         var item = FindVisualParent<System.Windows.Controls.ListViewItem>(source);
         if (item is null)
         {
+            selectedList.SelectedItem = null;
+            selectedList.ContextMenu?.SetCurrentValue(System.Windows.Controls.ContextMenu.IsOpenProperty, false);
+            e.Handled = true;
             return;
         }
 
+        SelectListViewItemForContextMenu(selectedList, item);
+    }
+
+    private void SelectListViewItemForContextMenu(System.Windows.Controls.ListView selectedList, System.Windows.Controls.ListViewItem item)
+    {
+        var dataContext = item.DataContext;
+        if (dataContext is null)
+        {
+            return;
+        }
+
+        if (selectedList.ContextMenu?.IsOpen == true)
+        {
+            selectedList.ContextMenu.IsOpen = false;
+        }
+
+        selectedList.SelectedItems.Clear();
+        selectedList.SelectedItem = dataContext;
         item.IsSelected = true;
         item.Focus();
-        if (sender is System.Windows.Controls.ListView selectedList)
+        selectedList.Focus();
+        ClearSelectionExcept(selectedList);
+    }
+
+    private void OnKebabMenuClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.Button button)
         {
-            ClearSelectionExcept(selectedList);
+            return;
         }
+
+        var item = FindVisualParent<System.Windows.Controls.ListViewItem>(button);
+        var listView = FindVisualParent<System.Windows.Controls.ListView>(button);
+        if (item is null || listView?.ContextMenu is null)
+        {
+            return;
+        }
+
+        SelectListViewItemForContextMenu(listView, item);
+
+        var menu = listView.ContextMenu;
+        menu.PlacementTarget = button;
+        menu.Placement = PlacementMode.Bottom;
+        menu.IsOpen = true;
+
+        e.Handled = true;
     }
 
     private void OnRootPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -594,6 +725,27 @@ public partial class MainWindow : Window
         DeleteOnlyActionsPanel.Visibility = hasDeleteOnlySelection
             ? Visibility.Visible
             : Visibility.Collapsed;
+    }
+
+    private void UpdateDashboardMetrics()
+    {
+        var today = DateTime.Now.Date;
+        var todayCount = _upcoming.Count(reminder => reminder.EffectiveDueLocal.Date == today);
+        var allReminders = _upcoming.Concat(_missed).Concat(_history).ToArray();
+
+        ActiveCountText.Text = _upcoming.Count.ToString();
+        MissedCountText.Text = _missed.Count.ToString();
+        TodayCountText.Text = todayCount.ToString();
+        HistoryCountText.Text = _history.Count.ToString();
+
+        TotalCountText.Text = allReminders.Length.ToString();
+        ActiveInsightCountText.Text = _upcoming.Count.ToString();
+        MissedInsightCountText.Text = _missed.Count.ToString();
+        TodayInsightCountText.Text = todayCount.ToString();
+        HighPriorityCountText.Text = allReminders.Count(reminder => reminder.Priority == 0).ToString();
+        MediumPriorityCountText.Text = allReminders.Count(reminder => reminder.Priority == 1).ToString();
+        LowPriorityCountText.Text = allReminders.Count(reminder => reminder.Priority == 2).ToString();
+        NoPriorityCountText.Text = allReminders.Count(reminder => reminder.Priority is not 0 and not 1 and not 2).ToString();
     }
 
     private void ApplyHotKeyConfiguration()
@@ -746,7 +898,7 @@ public partial class MainWindow : Window
             Owner = this
         };
 
-        if (confirmDialog.ShowDialog() != true)
+        if (ShowDialogWithBackdrop(confirmDialog) != true)
         {
             return;
         }
@@ -948,9 +1100,11 @@ public partial class MainWindow : Window
     {
         AnimateEntrance(TitleBarCard, 0);
         AnimateEntrance(HeaderCard, 70);
-        AnimateEntrance(UpcomingCard, 130);
+        AnimateEntrance(OverviewStrip, 110);
+        AnimateEntrance(UpcomingCard, 150);
         AnimateEntrance(MissedCard, 190);
-        AnimateEntrance(HistoryCard, 250);
+        AnimateEntrance(InsightsCard, 230);
+        AnimateEntrance(HistoryCard, 270);
         AnimateEntrance(FooterCard, 310);
     }
 
@@ -1080,11 +1234,3 @@ public partial class MainWindow : Window
     [DllImport("user32.dll")]
     private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
 }
-
-
-
-
-
-
-
-

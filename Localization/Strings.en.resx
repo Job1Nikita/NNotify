@@ -32,7 +32,7 @@
   <data name="ActionSnooze15" xml:space="preserve"><value>Snooze 15m</value></data>
   <data name="ActionEdit" xml:space="preserve"><value>Edit</value></data>
 
-  <data name="MainButtonAdd" xml:space="preserve"><value>+ Add</value></data>
+  <data name="MainButtonAdd" xml:space="preserve"><value>Add</value></data>
   <data name="MainTagline" xml:space="preserve"><value>No-miss reminders</value></data>
   <data name="MainAlwaysOnTop" xml:space="preserve"><value>Always on top</value></data>
   <data name="MainDarkTheme" xml:space="preserve"><value>Dark theme</value></data>
@@ -42,13 +42,20 @@
   <data name="MainMissedSubtitle" xml:space="preserve"><value>Shown when due time passed while the app was closed</value></data>
   <data name="MainHistoryTitle" xml:space="preserve"><value>History</value></data>
   <data name="MainHistorySubtitle" xml:space="preserve"><value>Confirmed and deleted reminders</value></data>
-  <data name="MainColumnDue" xml:space="preserve"><value>Due</value></data>
+  <data name="MainColumnDue" xml:space="preserve"><value>Time</value></data>
   <data name="MainColumnPriority" xml:space="preserve"><value>Priority</value></data>
-  <data name="MainColumnText" xml:space="preserve"><value>Text</value></data>
+  <data name="MainColumnText" xml:space="preserve"><value>Reminder</value></data>
   <data name="MainColumnStatus" xml:space="preserve"><value>Status</value></data>
   <data name="MainColumnEscalation" xml:space="preserve"><value>Escalation</value></data>
   <data name="MainColumnWhen" xml:space="preserve"><value>When</value></data>
   <data name="MainColumnResult" xml:space="preserve"><value>Result</value></data>
+  <data name="MainOverviewActive" xml:space="preserve"><value>Active</value></data>
+  <data name="MainOverviewMissed" xml:space="preserve"><value>Missed</value></data>
+  <data name="MainOverviewToday" xml:space="preserve"><value>Today</value></data>
+  <data name="MainOverviewHistory" xml:space="preserve"><value>History</value></data>
+  <data name="MainOverviewInsightsTitle" xml:space="preserve"><value>Quick insights</value></data>
+  <data name="MainOverviewAll" xml:space="preserve"><value>All</value></data>
+  <data name="MainOverviewNoPriority" xml:space="preserve"><value>No priority</value></data>
   <data name="MainQuickActionsTitle" xml:space="preserve"><value>Quick actions</value></data>
   <data name="MainHotKeyDisabled" xml:space="preserve"><value>Hotkey: disabled</value></data>
   <data name="MainHotKeyReadyTemplate" xml:space="preserve"><value>Hotkey: {0}</value></data>
@@ -78,6 +85,8 @@
   <data name="AddEditHeading" xml:space="preserve"><value>Reminder details</value></data>
   <data name="AddEditLabelText" xml:space="preserve"><value>Reminder text</value></data>
   <data name="AddEditLabelTime" xml:space="preserve"><value>Time</value></data>
+  <data name="AddEditLabelWhen" xml:space="preserve"><value>When</value></data>
+  <data name="AddEditPlaceholderText" xml:space="preserve"><value>Enter reminder text...</value></data>
   <data name="AddEditTooltipPickDate" xml:space="preserve"><value>Select date</value></data>
   <data name="AddEditPlus3" xml:space="preserve"><value>+3 min</value></data>
   <data name="AddEditPlus5" xml:space="preserve"><value>+5 min</value></data>
@@ -87,6 +96,10 @@
   <data name="AddEditValidationSelectDate" xml:space="preserve"><value>Select a date in the calendar.</value></data>
   <data name="AddEditValidationInvalidTime" xml:space="preserve"><value>Invalid time. Use hours 00-23 and minutes 00-59.</value></data>
   <data name="AddEditValidationPastTime" xml:space="preserve"><value>The selected time is in the past. Choose a future time.</value></data>
+  <data name="AddEditDiscardDraftTitle" xml:space="preserve"><value>Close without saving?</value></data>
+  <data name="AddEditDiscardDraftMessage" xml:space="preserve"><value>Reminder text has already been entered. The draft will be lost.</value></data>
+  <data name="AddEditDiscardDraftContinue" xml:space="preserve"><value>Continue adding</value></data>
+  <data name="AddEditDiscardDraftConfirm" xml:space="preserve"><value>Close without saving</value></data>
 
   <data name="SettingsWindowTitle" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsHeadingTelegram" xml:space="preserve"><value>Telegram</value></data>
@@ -103,6 +116,27 @@
   <data name="SettingsHotKeyInputTooltip" xml:space="preserve"><value>Click here and press a combination, for example Ctrl+Y.</value></data>
   <data name="SettingsHintHotKeyModifiers" xml:space="preserve"><value>Supported combinations: Ctrl/Shift/Alt/Win + key.</value></data>
   <data name="SettingsHeadingSync" xml:space="preserve"><value>Sync account</value></data>
+  <data name="SettingsNavSync" xml:space="preserve"><value>Sync</value></data>
+  <data name="SettingsDescTelegram" xml:space="preserve"><value>Connect Telegram for notifications and alerts.</value></data>
+  <data name="SettingsDescSync" xml:space="preserve"><value>Sync data and settings through your server.</value></data>
+  <data name="SettingsDescHotKey" xml:space="preserve"><value>Quickly open the add reminder window.</value></data>
+  <data name="SettingsDescStartup" xml:space="preserve"><value>Start NNotify after Windows sign-in.</value></data>
+  <data name="SettingsAboutDescription" xml:space="preserve"><value>Short information about the app and version.</value></data>
+  <data name="SettingsTelegramStatusConfigured" xml:space="preserve"><value>Configured</value></data>
+  <data name="SettingsTelegramStatusMissing" xml:space="preserve"><value>Not configured</value></data>
+  <data name="SettingsTargetCombinedLabel" xml:space="preserve"><value>Chat or user ID</value></data>
+  <data name="SettingsHintTelegramTarget" xml:space="preserve"><value>ID can belong to a Telegram chat, group, or user. Fill only one field.</value></data>
+  <data name="SettingsInfoTokenSecurity" xml:space="preserve"><value>The token is stored locally and protected by Windows security APIs (DPAPI, CurrentUser).</value></data>
+  <data name="SettingsSyncSummaryTitle" xml:space="preserve"><value>Sync</value></data>
+  <data name="SettingsSyncSummaryAvailable" xml:space="preserve"><value>Sync available</value></data>
+  <data name="SettingsSyncSummaryServer" xml:space="preserve"><value>Server</value></data>
+  <data name="SettingsSyncSummaryLogin" xml:space="preserve"><value>Username</value></data>
+  <data name="SettingsSyncSummaryAlerts" xml:space="preserve"><value>Alert ID</value></data>
+  <data name="SettingsSyncSummarySecure" xml:space="preserve"><value>Connection is secured (HTTPS). Default port: 443.</value></data>
+  <data name="SettingsButtonOpenSyncSettings" xml:space="preserve"><value>Open sync settings</value></data>
+  <data name="SettingsHotKeyRecorderLabel" xml:space="preserve"><value>Key combination</value></data>
+  <data name="SettingsStartupToggleLabel" xml:space="preserve"><value>Start NNotify after Windows sign-in</value></data>
+  <data name="SettingsValueNotSet" xml:space="preserve"><value>Not set</value></data>
   <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Server address</value></data>
   <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Username</value></data>
   <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Password</value></data>
@@ -208,6 +242,20 @@
   <data name="StartupErrorRegistryKey" xml:space="preserve"><value>Could not open startup registry key.</value></data>
   <data name="StartupErrorEnable" xml:space="preserve"><value>Could not enable startup. See details in log.txt.</value></data>
   <data name="StartupErrorDisable" xml:space="preserve"><value>Could not disable startup. See details in log.txt.</value></data>
+  <data name="SettingsLabelUpdates" xml:space="preserve"><value>Updates</value></data>
+  <data name="SettingsEnableUpdateCheck" xml:space="preserve"><value>Automatically check for new versions</value></data>
+  <data name="SettingsHintUpdates" xml:space="preserve"><value>NNotify checks GitHub Releases at most once per day. Updates are manual: download the new NNotify.exe and replace the current file.</value></data>
+  <data name="SettingsButtonCheckUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="UpdateWindowTitle" xml:space="preserve"><value>NNotify update</value></data>
+  <data name="UpdateHeading" xml:space="preserve"><value>A new version is available</value></data>
+  <data name="UpdateCurrentVersionLabel" xml:space="preserve"><value>Installed version</value></data>
+  <data name="UpdateLatestVersionLabel" xml:space="preserve"><value>Available on GitHub</value></data>
+  <data name="UpdateManualInstruction" xml:space="preserve"><value>Automatic exe replacement is intentionally disabled. To update, open the download page, download the new NNotify.exe, close the app, and replace the file in the folder where NNotify is currently running.</value></data>
+  <data name="UpdateButtonOpen" xml:space="preserve"><value>Open download page</value></data>
+  <data name="UpdateButtonLater" xml:space="preserve"><value>Remind me later</value></data>
+  <data name="UpdateButtonIgnoreVersion" xml:space="preserve"><value>Do not show this version</value></data>
+  <data name="UpdateNoUpdatesTitle" xml:space="preserve"><value>No updates</value></data>
+  <data name="UpdateNoUpdatesBodyTemplate" xml:space="preserve"><value>You are running the latest NNotify version: {0}.</value></data>
+  <data name="UpdateCheckFailedTitle" xml:space="preserve"><value>Could not check for updates</value></data>
+  <data name="UpdateCheckFailedBody" xml:space="preserve"><value>Check your internet connection or open the GitHub releases page manually.</value></data>
 </root>
-
-

@@ -1,7 +1,11 @@
 ﻿import Fastify from "fastify";
 import helmet from "@fastify/helmet";
+import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import sensible from "@fastify/sensible";
 import rateLimit from "@fastify/rate-limit";
+import type { FastifyReply } from "fastify";
 import { z } from "zod";
 import { config } from "./config.js";
 import { openDatabase } from "./db.js";
@@ -57,7 +61,34 @@ const syncBatchSchema = z.object({
   changes: z.array(syncReminderSchema).max(200)
 });
 
+const webLoginSchema = z.object({
+  username: z.string().min(1).max(64),
+  password: z.string().min(1).max(256)
+});
+
+const webReminderCreateSchema = z.object({
+  title: z.string().trim().min(1).max(2048),
+  dueAtUtc: z.number().int().positive(),
+  priority: z.number().int().min(0).max(2)
+});
+
+const webReminderUpdateSchema = z.object({
+  title: z.string().trim().min(1).max(2048).optional(),
+  dueAtUtc: z.number().int().positive().optional(),
+  priority: z.number().int().min(0).max(2).optional()
+});
+
+const webSnoozeSchema = z.object({
+  minutes: z.number().int().refine((value) => value === 5 || value === 15)
+});
+
 const RequestBodyLimitBytes = 256 * 1024;
+const WebDeviceName = "NNotify Web/PWA";
+const WebAccessCookieName = "nn_access";
+const WebRefreshCookieName = "nn_refresh";
+const WebDeviceCookieName = "nn_device";
+const WebCsrfCookieName = "nn_csrf";
+const WebStaticRoot = path.resolve(process.cwd(), "web");
 
 function getClientIp(headers: Record<string, unknown>, fallback: string): string {
   const xff = headers["x-forwarded-for"];
@@ -116,6 +147,104 @@ function buildReminderTelegramMessage(record: SyncReminderRecord): string {
       ? "Напоминание низкой важности 💡"
       : "Напоминание средней важности 🔔";
   return `${header}\n${record.title || "Без текста"}\nЗапланировано: ${dueLocal}`;
+}
+
+function parseCookieHeader(header: unknown): Record<string, string> {
+  const raw = Array.isArray(header) ? header[0] : header;
+  if (typeof raw !== "string" || raw.length === 0) {
+    return {};
+  }
+
+  const result: Record<string, string> = {};
+  for (const chunk of raw.split(";")) {
+    const separatorIndex = chunk.indexOf("=");
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const key = chunk.slice(0, separatorIndex).trim();
+    const value = chunk.slice(separatorIndex + 1).trim();
+    if (!key) {
+      continue;
+    }
+
+    try {
+      result[key] = decodeURIComponent(value);
+    } catch {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+function buildCookie(name: string, value: string, options: { maxAgeSeconds?: number; httpOnly?: boolean; secure?: boolean } = {}): string {
+  const parts = [
+    `${name}=${encodeURIComponent(value)}`,
+    "Path=/",
+    "SameSite=Lax"
+  ];
+
+  if (options.maxAgeSeconds !== undefined) {
+    parts.push(`Max-Age=${Math.max(0, Math.floor(options.maxAgeSeconds))}`);
+  }
+
+  if (options.httpOnly !== false) {
+    parts.push("HttpOnly");
+  }
+
+  if (options.secure !== false) {
+    parts.push("Secure");
+  }
+
+  return parts.join("; ");
+}
+
+function buildDeleteCookie(name: string, secure: boolean): string {
+  return buildCookie(name, "", { maxAgeSeconds: 0, httpOnly: true, secure });
+}
+
+function shouldUseSecureCookie(headers: Record<string, unknown>): boolean {
+  const proto = headers["x-forwarded-proto"];
+  const forwardedProto = Array.isArray(proto) ? proto[0] : proto;
+  return config.nodeEnv === "production" || forwardedProto === "https";
+}
+
+function createCsrfToken(): string {
+  return randomUUID().replace(/-/g, "");
+}
+
+function resolveWebStaticPath(relativePath: string): string | null {
+  const normalized = path.normalize(relativePath).replace(/^[/\\]+/, "");
+  const resolved = path.resolve(WebStaticRoot, normalized);
+  if (resolved === WebStaticRoot || resolved.startsWith(`${WebStaticRoot}${path.sep}`)) {
+    return resolved;
+  }
+
+  return null;
+}
+
+function webMimeType(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case ".html":
+      return "text/html; charset=utf-8";
+    case ".css":
+      return "text/css; charset=utf-8";
+    case ".js":
+      return "application/javascript; charset=utf-8";
+    case ".json":
+    case ".webmanifest":
+      return "application/manifest+json; charset=utf-8";
+    case ".svg":
+      return "image/svg+xml";
+    case ".png":
+      return "image/png";
+    case ".ico":
+      return "image/x-icon";
+    default:
+      return "application/octet-stream";
+  }
 }
 
 export function buildApp() {
@@ -327,6 +456,140 @@ export function buildApp() {
     }
   }
 
+  function setWebSessionCookies(
+    reply: FastifyReply,
+    headers: Record<string, unknown>,
+    input: { accessToken: string; refreshToken: string; deviceId: string; csrfToken?: string }
+  ): void {
+    const secure = shouldUseSecureCookie(headers);
+    const csrfToken = input.csrfToken ?? createCsrfToken();
+    reply.header("Set-Cookie", [
+      buildCookie(WebAccessCookieName, input.accessToken, {
+        maxAgeSeconds: config.accessTokenTtlSeconds,
+        httpOnly: true,
+        secure
+      }),
+      buildCookie(WebRefreshCookieName, input.refreshToken, {
+        maxAgeSeconds: config.refreshTokenTtlDays * 24 * 60 * 60,
+        httpOnly: true,
+        secure
+      }),
+      buildCookie(WebDeviceCookieName, input.deviceId, {
+        maxAgeSeconds: config.refreshTokenTtlDays * 24 * 60 * 60,
+        httpOnly: true,
+        secure
+      }),
+      buildCookie(WebCsrfCookieName, csrfToken, {
+        maxAgeSeconds: config.refreshTokenTtlDays * 24 * 60 * 60,
+        httpOnly: false,
+        secure
+      })
+    ]);
+  }
+
+  function clearWebSessionCookies(reply: FastifyReply, headers: Record<string, unknown>): void {
+    const secure = shouldUseSecureCookie(headers);
+    reply.header("Set-Cookie", [
+      buildDeleteCookie(WebAccessCookieName, secure),
+      buildDeleteCookie(WebRefreshCookieName, secure),
+      buildDeleteCookie(WebDeviceCookieName, secure),
+      buildDeleteCookie(WebCsrfCookieName, secure)
+    ]);
+  }
+
+  function isWebCsrfValid(headers: Record<string, unknown>): boolean {
+    const cookies = parseCookieHeader(headers.cookie);
+    const rawHeader = headers["x-csrf-token"];
+    const csrfHeader = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+    return typeof csrfHeader === "string" && csrfHeader.length > 0 && csrfHeader === cookies[WebCsrfCookieName];
+  }
+
+  async function authenticateWebRequest(
+    request: { headers: Record<string, unknown> },
+    reply: FastifyReply,
+    options: { allowRefresh?: boolean } = {}
+  ): Promise<{ userId: string; username: string; deviceId: string } | null> {
+    const cookies = parseCookieHeader(request.headers.cookie);
+    const accessToken = cookies[WebAccessCookieName];
+    const refreshToken = cookies[WebRefreshCookieName];
+    const deviceId = cookies[WebDeviceCookieName];
+
+    if (accessToken) {
+      try {
+        const verified = await verifyAccessToken(accessToken, config.jwtIssuer, config.jwtAudience, config.jwtAccessSecret);
+        const user = store.getUserById(verified.userId);
+        if (user?.status === "active") {
+          return { userId: verified.userId, username: verified.username, deviceId: verified.deviceId };
+        }
+      } catch {
+        // Access tokens are short-lived. Fall through to refresh-cookie rotation.
+      }
+    }
+
+    if (!options.allowRefresh || !refreshToken || !deviceId) {
+      return null;
+    }
+
+    const refreshed = await authService.refresh({
+      refreshToken,
+      deviceId,
+      deviceName: WebDeviceName
+    });
+    if (refreshed.statusCode !== 200) {
+      clearWebSessionCookies(reply, request.headers);
+      return null;
+    }
+
+    const body = refreshed.body as { accessToken?: unknown; refreshToken?: unknown };
+    if (typeof body.accessToken !== "string" || typeof body.refreshToken !== "string") {
+      clearWebSessionCookies(reply, request.headers);
+      return null;
+    }
+
+    setWebSessionCookies(reply, request.headers, {
+      accessToken: body.accessToken,
+      refreshToken: body.refreshToken,
+      deviceId,
+      csrfToken: cookies[WebCsrfCookieName] || createCsrfToken()
+    });
+
+    try {
+      const verified = await verifyAccessToken(body.accessToken, config.jwtIssuer, config.jwtAudience, config.jwtAccessSecret);
+      return { userId: verified.userId, username: verified.username, deviceId: verified.deviceId };
+    } catch {
+      clearWebSessionCookies(reply, request.headers);
+      return null;
+    }
+  }
+
+  function webReminderInputFromRecord(record: SyncReminderRecord, overrides: Partial<{
+    title: string;
+    dueAtUtc: number;
+    priority: number;
+    status: ReminderStatus;
+    lastFiredAtUtc: number | null;
+    ackedAtUtc: number | null;
+    snoozeUntilUtc: number | null;
+    telegramEscalatedAtUtc: number | null;
+    deletedAtUtc: number | null;
+  }>) {
+    const now = Date.now();
+    return {
+      id: record.id,
+      title: overrides.title ?? record.title,
+      dueAtUtc: overrides.dueAtUtc ?? record.due_at_utc,
+      priority: overrides.priority ?? record.priority,
+      createdAtUtc: record.created_at_utc,
+      status: overrides.status ?? record.status,
+      lastFiredAtUtc: "lastFiredAtUtc" in overrides ? overrides.lastFiredAtUtc! : record.last_fired_at_utc,
+      ackedAtUtc: "ackedAtUtc" in overrides ? overrides.ackedAtUtc! : record.acked_at_utc,
+      snoozeUntilUtc: "snoozeUntilUtc" in overrides ? overrides.snoozeUntilUtc! : record.snooze_until_utc,
+      telegramEscalatedAtUtc: "telegramEscalatedAtUtc" in overrides ? overrides.telegramEscalatedAtUtc! : record.telegram_escalated_at_utc,
+      updatedAtUtc: now,
+      deletedAtUtc: "deletedAtUtc" in overrides ? overrides.deletedAtUtc! : record.deleted_at_utc
+    };
+  }
+
   app.get("/v1/sync/reminders", async (request, reply) => {
     const auth = await authenticateSyncRequest(request);
     if (!auth) {
@@ -441,6 +704,254 @@ export function buildApp() {
       return reply.code(result.statusCode).send(result.body);
     }
   );
+
+  app.post(
+    "/v1/web/login",
+    {
+      config: {
+        rateLimit: {
+          max: 12,
+          timeWindow: "1 minute"
+        }
+      }
+    },
+    async (request, reply) => {
+      const parsed = webLoginSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.code(400).send({ message: "Invalid request payload." });
+      }
+
+      const cookies = parseCookieHeader(request.headers.cookie);
+      const deviceId = cookies[WebDeviceCookieName] || `web-${randomUUID()}`;
+      const ip = getClientIp(request.headers as Record<string, unknown>, request.ip);
+      const ua = request.headers["user-agent"];
+      const result = await authService.login({
+        username: parsed.data.username,
+        password: parsed.data.password,
+        deviceId,
+        deviceName: WebDeviceName,
+        ip,
+        userAgent: typeof ua === "string" ? ua.slice(0, 512) : null
+      });
+
+      if (result.statusCode !== 200) {
+        return reply.code(result.statusCode).send(result.body);
+      }
+
+      const body = result.body as { accessToken?: unknown; refreshToken?: unknown };
+      if (typeof body.accessToken !== "string" || typeof body.refreshToken !== "string") {
+        return reply.code(500).send({ message: "Invalid server session response." });
+      }
+
+      setWebSessionCookies(reply, request.headers as Record<string, unknown>, {
+        accessToken: body.accessToken,
+        refreshToken: body.refreshToken,
+        deviceId
+      });
+
+      return reply.send({ ok: true, username: parsed.data.username.trim().toLowerCase() });
+    }
+  );
+
+  app.get("/v1/web/session", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply, { allowRefresh: true });
+    if (!auth) {
+      return reply.code(401).send({ authenticated: false });
+    }
+
+    return { authenticated: true, username: auth.username };
+  });
+
+  app.post("/v1/web/logout", async (request, reply) => {
+    const cookies = parseCookieHeader(request.headers.cookie);
+    const refreshToken = cookies[WebRefreshCookieName];
+    const deviceId = cookies[WebDeviceCookieName];
+    if (refreshToken && deviceId) {
+      authService.logout({ refreshToken, deviceId });
+    }
+
+    clearWebSessionCookies(reply, request.headers as Record<string, unknown>);
+    return { ok: true };
+  });
+
+  app.get("/v1/web/reminders", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    const reminders = store.listSyncRemindersForUser(auth.userId, 500).map(toReminderDto);
+    return {
+      serverTimeUtc: Date.now(),
+      reminders
+    };
+  });
+
+  app.post("/v1/web/reminders", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    if (!isWebCsrfValid(request.headers as Record<string, unknown>)) {
+      return reply.code(403).send({ message: "CSRF token mismatch." });
+    }
+
+    const parsed = webReminderCreateSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ message: "Invalid reminder payload." });
+    }
+
+    if (parsed.data.dueAtUtc <= Date.now()) {
+      return reply.code(400).send({ message: "Reminder time must be in the future." });
+    }
+
+    const now = Date.now();
+    const reminder = store.upsertSyncReminder(auth.userId, auth.deviceId, {
+      id: randomUUID(),
+      title: parsed.data.title,
+      dueAtUtc: parsed.data.dueAtUtc,
+      priority: parsed.data.priority,
+      createdAtUtc: now,
+      status: "scheduled",
+      lastFiredAtUtc: null,
+      ackedAtUtc: null,
+      snoozeUntilUtc: null,
+      telegramEscalatedAtUtc: null,
+      updatedAtUtc: now,
+      deletedAtUtc: null
+    });
+
+    return reply.code(201).send({ reminder: toReminderDto(reminder) });
+  });
+
+  app.patch("/v1/web/reminders/:id", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    if (!isWebCsrfValid(request.headers as Record<string, unknown>)) {
+      return reply.code(403).send({ message: "CSRF token mismatch." });
+    }
+
+    const reminderId = String((request.params as { id?: string }).id ?? "");
+    const existing = store.getSyncReminder(auth.userId, reminderId);
+    if (!existing || existing.deleted_at_utc !== null) {
+      return reply.code(404).send({ message: "Reminder not found." });
+    }
+
+    const parsed = webReminderUpdateSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ message: "Invalid reminder payload." });
+    }
+
+    if (parsed.data.dueAtUtc !== undefined && parsed.data.dueAtUtc <= Date.now()) {
+      return reply.code(400).send({ message: "Reminder time must be in the future." });
+    }
+
+    const reminder = store.upsertSyncReminder(auth.userId, auth.deviceId, webReminderInputFromRecord(existing, {
+      title: parsed.data.title,
+      dueAtUtc: parsed.data.dueAtUtc,
+      priority: parsed.data.priority,
+      status: "scheduled",
+      lastFiredAtUtc: null,
+      ackedAtUtc: null,
+      snoozeUntilUtc: null,
+      telegramEscalatedAtUtc: null,
+      deletedAtUtc: null
+    }));
+
+    return { reminder: toReminderDto(reminder) };
+  });
+
+  app.post("/v1/web/reminders/:id/ack", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    if (!isWebCsrfValid(request.headers as Record<string, unknown>)) {
+      return reply.code(403).send({ message: "CSRF token mismatch." });
+    }
+
+    const reminderId = String((request.params as { id?: string }).id ?? "");
+    const existing = store.getSyncReminder(auth.userId, reminderId);
+    if (!existing || existing.deleted_at_utc !== null) {
+      return reply.code(404).send({ message: "Reminder not found." });
+    }
+
+    const now = Date.now();
+    const reminder = store.upsertSyncReminder(auth.userId, auth.deviceId, webReminderInputFromRecord(existing, {
+      status: "acked",
+      ackedAtUtc: now,
+      snoozeUntilUtc: null
+    }));
+
+    return { reminder: toReminderDto(reminder) };
+  });
+
+  app.post("/v1/web/reminders/:id/snooze", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    if (!isWebCsrfValid(request.headers as Record<string, unknown>)) {
+      return reply.code(403).send({ message: "CSRF token mismatch." });
+    }
+
+    const reminderId = String((request.params as { id?: string }).id ?? "");
+    const existing = store.getSyncReminder(auth.userId, reminderId);
+    if (!existing || existing.deleted_at_utc !== null) {
+      return reply.code(404).send({ message: "Reminder not found." });
+    }
+
+    const parsed = webSnoozeSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ message: "Invalid snooze payload." });
+    }
+
+    const reminder = store.upsertSyncReminder(auth.userId, auth.deviceId, webReminderInputFromRecord(existing, {
+      status: "snoozed",
+      snoozeUntilUtc: Date.now() + parsed.data.minutes * 60 * 1000,
+      ackedAtUtc: null
+    }));
+
+    return { reminder: toReminderDto(reminder) };
+  });
+
+  app.delete("/v1/web/reminders/:id", async (request, reply) => {
+    const auth = await authenticateWebRequest(request, reply);
+    if (!auth) {
+      return reply.code(401).send({ message: "Unauthorized" });
+    }
+
+    if (!isWebCsrfValid(request.headers as Record<string, unknown>)) {
+      return reply.code(403).send({ message: "CSRF token mismatch." });
+    }
+
+    const reminderId = String((request.params as { id?: string }).id ?? "");
+    const existing = store.getSyncReminder(auth.userId, reminderId);
+    if (!existing || existing.deleted_at_utc !== null) {
+      return reply.code(404).send({ message: "Reminder not found." });
+    }
+
+    const now = Date.now();
+    const isHistoryItem = existing.status === "acked" || existing.status === "cancelled" || existing.status === "missed";
+    const reminder = store.upsertSyncReminder(auth.userId, auth.deviceId, webReminderInputFromRecord(existing, isHistoryItem
+      ? {
+          deletedAtUtc: now
+        }
+      : {
+          status: "cancelled",
+          ackedAtUtc: now,
+          snoozeUntilUtc: null,
+          deletedAtUtc: null
+        }));
+
+    return { reminder: toReminderDto(reminder) };
+  });
 
   type AdminSectionKey = "main" | "active" | "blocked" | "deleted" | "pending";
 
@@ -757,6 +1268,39 @@ export function buildApp() {
     await telegram.answerCallback(callbackId, "Unknown action");
     store.markTelegramCallbackProcessed(callbackId);
     return reply.code(200).send({ ok: true });
+  });
+
+  async function serveWebFile(reply: FastifyReply, relativePath: string) {
+    const requestedPath = relativePath === "/" || relativePath === "" ? "index.html" : relativePath.replace(/^\/+/, "");
+    const filePath = resolveWebStaticPath(requestedPath);
+    if (!filePath) {
+      return reply.code(404).send({ message: "Not found" });
+    }
+
+    try {
+      const content = await readFile(filePath);
+      reply.type(webMimeType(filePath));
+      if (requestedPath === "index.html" || requestedPath === "app.js" || requestedPath === "styles.css") {
+        reply.header("Cache-Control", "no-cache");
+      } else {
+        reply.header("Cache-Control", "public, max-age=86400");
+      }
+      return reply.send(content);
+    } catch {
+      return reply.code(404).send({ message: "Not found" });
+    }
+  }
+
+  app.get("/", async (_request, reply) => serveWebFile(reply, "index.html"));
+  app.get("/index.html", async (_request, reply) => serveWebFile(reply, "index.html"));
+  app.get("/styles.css", async (_request, reply) => serveWebFile(reply, "styles.css"));
+  app.get("/app.js", async (_request, reply) => serveWebFile(reply, "app.js"));
+  app.get("/manifest.webmanifest", async (_request, reply) => serveWebFile(reply, "manifest.webmanifest"));
+  app.get("/sw.js", async (_request, reply) => serveWebFile(reply, "sw.js"));
+  app.get("/favicon.ico", async (_request, reply) => serveWebFile(reply, "icons/icon-192.png"));
+  app.get("/icons/:name", async (request, reply) => {
+    const name = String((request.params as { name?: string }).name ?? "");
+    return serveWebFile(reply, `icons/${name}`);
   });
 
   return { app, authService, store, telegram, db };

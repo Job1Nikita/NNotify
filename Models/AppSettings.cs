@@ -18,6 +18,9 @@ public sealed class AppSettings
     public bool SyncInitialLocalPublishCompleted { get; set; }
     public bool HotKeyEnabled { get; set; } = true;
     public string HotKeyGesture { get; set; } = "Ctrl+Alt+R";
+    public bool CheckUpdatesAutomatically { get; set; } = true;
+    public long LastUpdateCheckUtc { get; set; }
+    public string? IgnoredUpdateVersion { get; set; }
     public bool MainWindowTopmost { get; set; }
     public bool UseDarkTheme { get; set; }
 }

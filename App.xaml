@@ -1,8 +1,25 @@
-﻿<Application x:Class="NNotify.App"
+<Application x:Class="NNotify.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <!-- Disable default WPF dotted keyboard focus rectangles globally.
+             Controls still receive focus; only the legacy visual adorner is removed. -->
+        <Style x:Key="EmptyFocusVisualStyle" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Static SystemParameters.FocusVisualStyleKey}" TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
         <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#F2F8FF" Offset="0" />
             <GradientStop Color="#F8F4FF" Offset="0.58" />
@@ -10,29 +27,35 @@
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#16ACFF" Offset="0" />
-            <GradientStop Color="#2F6BFF" Offset="1" />
+            <GradientStop Color="#25BAFF" Offset="0" />
+            <GradientStop Color="#377CFF" Offset="1" />
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="AccentGradientHoverBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#35BCFF" Offset="0" />
-            <GradientStop Color="#4A7DFF" Offset="1" />
+            <GradientStop Color="#37C2FF" Offset="0" />
+            <GradientStop Color="#4C8AFF" Offset="1" />
         </LinearGradientBrush>
 
-        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F4F7FC" />
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F6F9FE" />
         <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="PrimaryTextBrush" Color="#1B2635" />
         <SolidColorBrush x:Key="SecondaryTextBrush" Color="#617189" />
         <SolidColorBrush x:Key="AccentBrush" Color="#2C78FF" />
         <SolidColorBrush x:Key="AccentTextBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="BorderBrushLight" Color="#D7E0ED" />
-        <SolidColorBrush x:Key="HoverBrush" Color="#EDF4FF" />
+        <SolidColorBrush x:Key="BorderBrushLight" Color="#D9E4F2" />
+        <SolidColorBrush x:Key="HoverBrush" Color="#EEF6FF" />
+        <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="ButtonHoverBackgroundBrush" Color="#F6FAFF" />
+        <SolidColorBrush x:Key="ButtonPressedBackgroundBrush" Color="#EAF3FF" />
+        <SolidColorBrush x:Key="ButtonBorderBrush" Color="#CBD8EA" />
+        <SolidColorBrush x:Key="ButtonHoverBorderBrush" Color="#8EBBFF" />
         <SolidColorBrush x:Key="ListRowBorderBrush" Color="#E8EEF6" />
         <SolidColorBrush x:Key="ListRowHoverBrush" Color="#F1F6FF" />
-        <SolidColorBrush x:Key="ListRowSelectedBrush" Color="#E5F0FF" />
+        <SolidColorBrush x:Key="ListRowSelectedBrush" Color="#EAF3FF" />
+        <SolidColorBrush x:Key="SelectedRowBorderBrush" Color="#C9DAF3" />
         <SolidColorBrush x:Key="ListHeaderBackgroundBrush" Color="#F6FAFF" />
         <SolidColorBrush x:Key="ListHeaderHoverBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="ContextMenuBackgroundBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="ContextMenuBorderBrush" Color="#D7E0ED" />
+        <SolidColorBrush x:Key="ContextMenuBorderBrush" Color="#D9E4F2" />
         <SolidColorBrush x:Key="ContextMenuHoverBrush" Color="#EEF4FF" />
         <SolidColorBrush x:Key="CheckBoxBoxBackgroundBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="CheckBoxBoxBorderBrush" Color="#C8D5E8" />
@@ -43,16 +66,18 @@
         <SolidColorBrush x:Key="PriorityP0BadgeBrush" Color="#FFE1E5" />
         <SolidColorBrush x:Key="PriorityP1BadgeBrush" Color="#E7F1FF" />
         <SolidColorBrush x:Key="PriorityP2BadgeBrush" Color="#E8F9EC" />
-        <SolidColorBrush x:Key="StatusDefaultBadgeBrush" Color="#EDF4FF" />
+        <SolidColorBrush x:Key="StatusDefaultBadgeBrush" Color="#EEF6FF" />
         <SolidColorBrush x:Key="StatusAckBadgeBrush" Color="#E8F9EC" />
         <SolidColorBrush x:Key="StatusMissedBadgeBrush" Color="#FFE9D6" />
         <SolidColorBrush x:Key="StatusFiredBadgeBrush" Color="#FFE1E5" />
-        <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#EEF3FA" />
-        <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#C4D1E3" />
+        <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#F2F6FB" />
+        <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#B8C6DA" />
         <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#AEBFD8" />
         <SolidColorBrush x:Key="ScrollBarThumbPressedBrush" Color="#9CB1CE" />
+        <SolidColorBrush x:Key="ModalBackdropBrush" Color="#330F172A" />
 
-        <DropShadowEffect x:Key="PanelShadow" BlurRadius="16" ShadowDepth="0" Opacity="0.17" Color="#0B1529" />
+        <DropShadowEffect x:Key="PanelShadow" BlurRadius="28" ShadowDepth="0" Opacity="0.20" Color="#0B1529" />
+        <DropShadowEffect x:Key="ModalDialogShadow" BlurRadius="46" ShadowDepth="14" Direction="270" Opacity="0.30" Color="#0B1529" />
 
         <Style TargetType="Window">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" />
@@ -71,11 +96,14 @@
         </Style>
 
         <Style TargetType="Button">
-            <Setter Property="Margin" Value="4" />
-            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource EmptyFocusVisualStyle}" />
+            <Setter Property="Margin" Value="4,2" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="13,5" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushLight}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
@@ -85,17 +113,21 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverBackgroundBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource ButtonHoverBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
-                                <Setter TargetName="Root" Property="Opacity" Value="0.86" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedBackgroundBrush}" />
+                                <Setter TargetName="Root" Property="Opacity" Value="0.94" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.45" />
@@ -107,9 +139,12 @@
         </Style>
 
         <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="{DynamicResource AccentGradientBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="#3E85F5" />
+            <Setter Property="Foreground" Value="#F4FAFF" />
+            <Setter Property="TextElement.Foreground" Value="#F4FAFF" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -117,15 +152,21 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                                CornerRadius="11"
+                                SnapsToDevicePixels="True"
+                                TextElement.Foreground="#F4FAFF">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentGradientHoverBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="#4A90FF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.84" />
+                                <Setter TargetName="Root" Property="Background" Value="#3478E3" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.45" />
@@ -280,6 +321,7 @@
         </Style>
 
         <Style TargetType="ListView">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource EmptyFocusVisualStyle}" />
             <Setter Property="Margin" Value="0,8,0,0" />
             <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushLight}" />
@@ -304,6 +346,8 @@
         </Style>
 
         <Style TargetType="ListViewItem">
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource EmptyFocusVisualStyle}" />
             <Setter Property="Padding" Value="6,4" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="{DynamicResource ListRowBorderBrush}" />
@@ -571,15 +615,15 @@
             <Setter Property="Background" Value="{DynamicResource ScrollBarTrackBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource ScrollBarTrackBrush}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Width" Value="14" />
-            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="10" />
+            <Setter Property="Height" Value="10" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollBar">
                         <Border x:Name="Root"
                                 Padding="1"
                                 SnapsToDevicePixels="True"
-                                CornerRadius="7"
+                                CornerRadius="5"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
@@ -601,14 +645,14 @@
                             <Trigger Property="Orientation" Value="Horizontal">
                                 <Setter TargetName="DecreaseButton" Property="Command" Value="{x:Static ScrollBar.PageLeftCommand}" />
                                 <Setter TargetName="IncreaseButton" Property="Command" Value="{x:Static ScrollBar.PageRightCommand}" />
-                                <Setter Property="Height" Value="14" />
+                                <Setter Property="Height" Value="10" />
                                 <Setter Property="Width" Value="Auto" />
                             </Trigger>
                             <Trigger Property="Orientation" Value="Vertical">
                                 <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="True" />
                                 <Setter TargetName="DecreaseButton" Property="Command" Value="{x:Static ScrollBar.PageUpCommand}" />
                                 <Setter TargetName="IncreaseButton" Property="Command" Value="{x:Static ScrollBar.PageDownCommand}" />
-                                <Setter Property="Width" Value="14" />
+                                <Setter Property="Width" Value="10" />
                                 <Setter Property="Height" Value="Auto" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">

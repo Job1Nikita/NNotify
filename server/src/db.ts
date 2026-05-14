@@ -135,6 +135,15 @@ function migrate(db: SqliteDb): void {
     CREATE INDEX IF NOT EXISTS idx_sync_reminders_escalation_retry
       ON sync_reminders(telegram_escalation_next_retry_utc, telegram_escalation_attempts);
   `);
+
+  db.prepare(
+    `UPDATE sync_reminders
+     SET deleted_at_utc = NULL,
+         updated_at_utc = ?
+     WHERE status = 'cancelled'
+       AND deleted_at_utc IS NOT NULL
+       AND acked_at_utc IS NULL`
+  ).run(Date.now());
 }
 
 function ensureColumn(db: SqliteDb, table: string, column: string, alterSql: string): void {

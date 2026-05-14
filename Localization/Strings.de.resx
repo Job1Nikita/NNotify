@@ -32,7 +32,7 @@
   <data name="ActionSnooze15" xml:space="preserve"><value>15 Min verschieben</value></data>
   <data name="ActionEdit" xml:space="preserve"><value>Bearbeiten</value></data>
 
-  <data name="MainButtonAdd" xml:space="preserve"><value>+ Hinzufügen</value></data>
+  <data name="MainButtonAdd" xml:space="preserve"><value>Hinzufügen</value></data>
   <data name="MainTagline" xml:space="preserve"><value>Erinnerungen ohne Aussetzer</value></data>
   <data name="MainAlwaysOnTop" xml:space="preserve"><value>Immer im Vordergrund</value></data>
   <data name="MainDarkTheme" xml:space="preserve"><value>Dunkles Design</value></data>
@@ -42,13 +42,20 @@
   <data name="MainMissedSubtitle" xml:space="preserve"><value>Erscheint, wenn die Zeit ablief, während die App geschlossen war.</value></data>
   <data name="MainHistoryTitle" xml:space="preserve"><value>Verlauf</value></data>
   <data name="MainHistorySubtitle" xml:space="preserve"><value>Bestätigte und gelöschte Erinnerungen</value></data>
-  <data name="MainColumnDue" xml:space="preserve"><value>Fällig</value></data>
+  <data name="MainColumnDue" xml:space="preserve"><value>Zeit</value></data>
   <data name="MainColumnPriority" xml:space="preserve"><value>Priorität</value></data>
-  <data name="MainColumnText" xml:space="preserve"><value>Text</value></data>
+  <data name="MainColumnText" xml:space="preserve"><value>Erinnerung</value></data>
   <data name="MainColumnStatus" xml:space="preserve"><value>Status</value></data>
   <data name="MainColumnEscalation" xml:space="preserve"><value>Eskalation</value></data>
   <data name="MainColumnWhen" xml:space="preserve"><value>Wann</value></data>
   <data name="MainColumnResult" xml:space="preserve"><value>Ergebnis</value></data>
+  <data name="MainOverviewActive" xml:space="preserve"><value>Aktiv</value></data>
+  <data name="MainOverviewMissed" xml:space="preserve"><value>Verpasst</value></data>
+  <data name="MainOverviewToday" xml:space="preserve"><value>Heute</value></data>
+  <data name="MainOverviewHistory" xml:space="preserve"><value>Verlauf</value></data>
+  <data name="MainOverviewInsightsTitle" xml:space="preserve"><value>Schnellübersicht</value></data>
+  <data name="MainOverviewAll" xml:space="preserve"><value>Alle</value></data>
+  <data name="MainOverviewNoPriority" xml:space="preserve"><value>Keine Priorität</value></data>
   <data name="MainQuickActionsTitle" xml:space="preserve"><value>Schnellaktionen</value></data>
   <data name="MainHotKeyDisabled" xml:space="preserve"><value>Hotkey: deaktiviert</value></data>
   <data name="MainHotKeyReadyTemplate" xml:space="preserve"><value>Hotkey: {0}</value></data>
@@ -78,6 +85,8 @@
   <data name="AddEditHeading" xml:space="preserve"><value>Erinnerungsdetails</value></data>
   <data name="AddEditLabelText" xml:space="preserve"><value>Erinnerungstext</value></data>
   <data name="AddEditLabelTime" xml:space="preserve"><value>Zeit</value></data>
+  <data name="AddEditLabelWhen" xml:space="preserve"><value>Wann</value></data>
+  <data name="AddEditPlaceholderText" xml:space="preserve"><value>Erinnerungstext eingeben...</value></data>
   <data name="AddEditTooltipPickDate" xml:space="preserve"><value>Datum auswählen</value></data>
   <data name="AddEditPlus3" xml:space="preserve"><value>+3 Min</value></data>
   <data name="AddEditPlus5" xml:space="preserve"><value>+5 Min</value></data>
@@ -87,6 +96,10 @@
   <data name="AddEditValidationSelectDate" xml:space="preserve"><value>Bitte ein Datum im Kalender auswählen.</value></data>
   <data name="AddEditValidationInvalidTime" xml:space="preserve"><value>Ungültige Zeit. Verwenden Sie Stunden 00-23 und Minuten 00-59.</value></data>
   <data name="AddEditValidationPastTime" xml:space="preserve"><value>Die gewählte Zeit liegt in der Vergangenheit. Bitte eine zukünftige Zeit wählen.</value></data>
+  <data name="AddEditDiscardDraftTitle" xml:space="preserve"><value>Ohne Speichern schließen?</value></data>
+  <data name="AddEditDiscardDraftMessage" xml:space="preserve"><value>Der Erinnerungstext wurde bereits eingegeben. Der Entwurf geht verloren.</value></data>
+  <data name="AddEditDiscardDraftContinue" xml:space="preserve"><value>Weiter hinzufügen</value></data>
+  <data name="AddEditDiscardDraftConfirm" xml:space="preserve"><value>Ohne Speichern schließen</value></data>
 
   <data name="SettingsWindowTitle" xml:space="preserve"><value>Einstellungen</value></data>
   <data name="SettingsHeadingTelegram" xml:space="preserve"><value>Telegram</value></data>
@@ -103,6 +116,27 @@
   <data name="SettingsHotKeyInputTooltip" xml:space="preserve"><value>Hier klicken und Kombination drücken, z. B. Ctrl+Y.</value></data>
   <data name="SettingsHintHotKeyModifiers" xml:space="preserve"><value>Unterstützt: Ctrl/Shift/Alt/Win + Taste.</value></data>
   <data name="SettingsHeadingSync" xml:space="preserve"><value>Synchronisationskonto</value></data>
+  <data name="SettingsNavSync" xml:space="preserve"><value>Synchronisation</value></data>
+  <data name="SettingsDescTelegram" xml:space="preserve"><value>Telegram für Benachrichtigungen und Hinweise verbinden.</value></data>
+  <data name="SettingsDescSync" xml:space="preserve"><value>Daten und Einstellungen über Ihren Server synchronisieren.</value></data>
+  <data name="SettingsDescHotKey" xml:space="preserve"><value>Das Fenster zum Hinzufügen schnell öffnen.</value></data>
+  <data name="SettingsDescStartup" xml:space="preserve"><value>NNotify nach der Windows-Anmeldung starten.</value></data>
+  <data name="SettingsAboutDescription" xml:space="preserve"><value>Kurze Informationen zur App und Version.</value></data>
+  <data name="SettingsTelegramStatusConfigured" xml:space="preserve"><value>Eingerichtet</value></data>
+  <data name="SettingsTelegramStatusMissing" xml:space="preserve"><value>Nicht eingerichtet</value></data>
+  <data name="SettingsTargetCombinedLabel" xml:space="preserve"><value>Chat- oder Benutzer-ID</value></data>
+  <data name="SettingsHintTelegramTarget" xml:space="preserve"><value>Die ID kann zu einem Telegram-Chat, einer Gruppe oder einem Benutzer gehören. Nur ein Feld ausfüllen.</value></data>
+  <data name="SettingsInfoTokenSecurity" xml:space="preserve"><value>Das Token wird lokal gespeichert und durch Windows-Sicherheitsfunktionen geschützt (DPAPI, CurrentUser).</value></data>
+  <data name="SettingsSyncSummaryTitle" xml:space="preserve"><value>Synchronisation</value></data>
+  <data name="SettingsSyncSummaryAvailable" xml:space="preserve"><value>Synchronisation verfügbar</value></data>
+  <data name="SettingsSyncSummaryServer" xml:space="preserve"><value>Server</value></data>
+  <data name="SettingsSyncSummaryLogin" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="SettingsSyncSummaryAlerts" xml:space="preserve"><value>Benachrichtigungs-ID</value></data>
+  <data name="SettingsSyncSummarySecure" xml:space="preserve"><value>Verbindung ist geschützt (HTTPS). Standard-Port: 443.</value></data>
+  <data name="SettingsButtonOpenSyncSettings" xml:space="preserve"><value>Synchronisationseinstellungen öffnen</value></data>
+  <data name="SettingsHotKeyRecorderLabel" xml:space="preserve"><value>Tastenkombination</value></data>
+  <data name="SettingsStartupToggleLabel" xml:space="preserve"><value>NNotify nach der Windows-Anmeldung starten</value></data>
+  <data name="SettingsValueNotSet" xml:space="preserve"><value>Nicht angegeben</value></data>
   <data name="SettingsLabelSyncServer" xml:space="preserve"><value>Serveradresse</value></data>
   <data name="SettingsLabelSyncUsername" xml:space="preserve"><value>Benutzername</value></data>
   <data name="SettingsLabelSyncPassword" xml:space="preserve"><value>Passwort</value></data>
@@ -208,6 +242,20 @@
   <data name="StartupErrorRegistryKey" xml:space="preserve"><value>Autostart-Registrierungsschlüssel konnte nicht geöffnet werden.</value></data>
   <data name="StartupErrorEnable" xml:space="preserve"><value>Autostart konnte nicht aktiviert werden. Details in log.txt.</value></data>
   <data name="StartupErrorDisable" xml:space="preserve"><value>Autostart konnte nicht deaktiviert werden. Details in log.txt.</value></data>
+  <data name="SettingsLabelUpdates" xml:space="preserve"><value>Updates</value></data>
+  <data name="SettingsEnableUpdateCheck" xml:space="preserve"><value>Automatisch nach neuen Versionen suchen</value></data>
+  <data name="SettingsHintUpdates" xml:space="preserve"><value>NNotify prüft GitHub Releases höchstens einmal pro Tag. Updates erfolgen manuell: neue NNotify.exe herunterladen und die aktuelle Datei ersetzen.</value></data>
+  <data name="SettingsButtonCheckUpdates" xml:space="preserve"><value>Nach Updates suchen</value></data>
+  <data name="UpdateWindowTitle" xml:space="preserve"><value>NNotify-Update</value></data>
+  <data name="UpdateHeading" xml:space="preserve"><value>Eine neue Version ist verfügbar</value></data>
+  <data name="UpdateCurrentVersionLabel" xml:space="preserve"><value>Installierte Version</value></data>
+  <data name="UpdateLatestVersionLabel" xml:space="preserve"><value>Auf GitHub verfügbar</value></data>
+  <data name="UpdateManualInstruction" xml:space="preserve"><value>Der automatische Austausch der exe ist bewusst deaktiviert. Zum Aktualisieren öffnen Sie die Download-Seite, laden die neue NNotify.exe herunter, schließen die App und ersetzen die Datei im Ordner, aus dem NNotify aktuell gestartet wird.</value></data>
+  <data name="UpdateButtonOpen" xml:space="preserve"><value>Download öffnen</value></data>
+  <data name="UpdateButtonLater" xml:space="preserve"><value>Später erinnern</value></data>
+  <data name="UpdateButtonIgnoreVersion" xml:space="preserve"><value>Diese Version nicht anzeigen</value></data>
+  <data name="UpdateNoUpdatesTitle" xml:space="preserve"><value>Keine Updates</value></data>
+  <data name="UpdateNoUpdatesBodyTemplate" xml:space="preserve"><value>Sie verwenden die aktuelle NNotify-Version: {0}.</value></data>
+  <data name="UpdateCheckFailedTitle" xml:space="preserve"><value>Updateprüfung fehlgeschlagen</value></data>
+  <data name="UpdateCheckFailedBody" xml:space="preserve"><value>Internetverbindung prüfen oder die GitHub-Releases-Seite manuell öffnen.</value></data>
 </root>
-
-

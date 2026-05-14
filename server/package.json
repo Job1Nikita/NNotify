@@ -1,8 +1,8 @@
 {
   "name": "nnotify-sync-server",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "NNotify auth and reminder sync server",
+  "description": "NNotify auth/sync server (auth phase)",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"

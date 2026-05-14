@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d8cff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="NNotify">
+  <title>NNotify</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="bg-orb bg-orb-one"></div>
+  <div class="bg-orb bg-orb-two"></div>
+
+  <main id="app" class="app-shell" aria-live="polite">
+    <section id="loginView" class="login-view hidden">
+      <div class="brand-block">
+        <img src="/icons/icon-192.png" alt="" class="brand-logo">
+        <div>
+          <h1>NNotify</h1>
+          <p data-i18n="tagline">Напоминания без пропусков</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="panel login-card">
+        <h2 data-i18n="signinTitle">Вход в синхронизацию</h2>
+        <label>
+          <span data-i18n="serverHint">Используйте учетную запись сервера NNotify</span>
+        </label>
+        <label>
+          <span data-i18n="username">Логин</span>
+          <input id="loginUsername" autocomplete="username" required>
+        </label>
+        <label>
+          <span data-i18n="password">Пароль</span>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="primary full" data-i18n="signin">Войти</button>
+        <p id="loginError" class="error-text" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="mainView" class="main-view hidden">
+      <header class="topbar panel">
+        <div class="brand-inline">
+          <img src="/icons/icon-192.png" alt="" class="small-logo">
+          <div>
+            <h1>NNotify</h1>
+            <p data-i18n="tagline">Напоминания без пропусков</p>
+          </div>
+        </div>
+        <button id="settingsButton" class="icon-button" type="button" aria-label="Настройки">⚙️</button>
+      </header>
+
+      <button id="addButton" class="add-button" type="button">
+        <span class="add-button-icon" aria-hidden="true"></span>
+        <span data-i18n="addReminder">Добавить напоминание</span>
+      </button>
+
+      <section class="panel list-panel">
+        <div class="section-title-row">
+          <div>
+            <h2 data-i18n="upcoming">Ближайшие и активные</h2>
+            <p data-i18n="upcomingHint">Синхронизируются с вашими устройствами</p>
+          </div>
+          <span id="syncState" class="sync-pill">Sync</span>
+        </div>
+        <div id="reminderList" class="reminder-list"></div>
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">✓</div>
+          <p data-i18n="empty">Активных напоминаний нет</p>
+        </div>
+      </section>
+
+      <section class="panel list-panel compact">
+        <button id="historyToggle" class="plain-toggle" type="button">
+          <span data-i18n="history">История</span>
+          <span id="historyCount">0</span>
+        </button>
+        <div id="historyList" class="history-list hidden"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="sheetBackdrop" class="sheet-backdrop hidden"></div>
+  <section id="reminderSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <form id="reminderForm" class="sheet-content">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2 id="sheetTitle" data-i18n="newReminder">Добавить напоминание</h2>
+        <button id="closeSheetButton" class="icon-button close-button" type="button" aria-label="Close"><svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+
+      <div class="sheet-body">
+        <label>
+          <span data-i18n="textLabel">Текст напоминания</span>
+          <textarea id="reminderTitle" rows="4" required></textarea>
+        </label>
+
+        <div class="time-grid">
+          <label class="date-selector-field">
+            <span data-i18n="date">Дата</span>
+            <input id="reminderDate" type="date" required>
+          </label>
+          <label class="time-selector-field">
+            <span data-i18n="time">Время</span>
+            <input id="reminderTime" type="time" required>
+          </label>
+        </div>
+
+        <div class="quick-row" aria-label="Quick time buttons">
+          <button type="button" data-add-minutes="3">+3 мин</button>
+          <button type="button" data-add-minutes="5">+5 мин</button>
+          <button type="button" data-add-minutes="10">+10 мин</button>
+        </div>
+
+        <div id="desktopPickerArea" class="desktop-picker-area" aria-live="polite"></div>
+
+        <div class="priority-block">
+          <span data-i18n="priority">Приоритет</span>
+          <div class="segmented" role="radiogroup">
+            <button type="button" data-priority="0" data-i18n="high">Важно</button>
+            <button type="button" data-priority="1" class="active" data-i18n="medium">Средне</button>
+            <button type="button" data-priority="2" data-i18n="low">Низко</button>
+          </div>
+        </div>
+
+        <p id="sheetError" class="error-text" role="alert"></p>
+      </div>
+
+      <div class="sheet-actions">
+        <button id="cancelSheetButton" type="button" class="secondary" data-i18n="cancel">Отмена</button>
+        <button type="submit" class="primary" data-i18n="save">Сохранить</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="actionSheet" class="sheet hidden" role="dialog" aria-modal="true">
+    <div class="sheet-content action-content reminder-action-card">
+      <div class="sheet-handle"></div>
+      <div class="action-summary">
+        <h2 id="actionTitle"></h2>
+        <p id="actionMeta"></p>
+      </div>
+      <div class="action-grid reminder-action-grid">
+        <button id="ackButton" type="button" class="primary action-ack" data-i18n="ack">Подтвердить</button>
+        <div class="action-section-label" data-i18n="snoozeAction">Отложить</div>
+        <button id="snooze5Button" type="button" class="secondary action-snooze" data-i18n="snooze5Action">На 5 минут</button>
+        <button id="snooze15Button" type="button" class="secondary action-snooze" data-i18n="snooze15Action">На 15 минут</button>
+        <button id="editButton" type="button" class="secondary action-edit" data-i18n="editReminderAction">Изменить напоминание</button>
+        <button id="deleteButton" type="button" class="danger action-delete" data-i18n="deleteReminderAction">Удалить напоминание</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="settingsSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="sheet-content action-content settings-content">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2 id="settingsTitle" data-i18n="settings">Аккаунт</h2>
+        <button id="closeSettingsButton" class="icon-button close-button" type="button" aria-label="Close"><svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <p><span data-i18n="signedInAs">Вы вошли как</span> <strong id="currentUser"></strong></p>
+      <div class="theme-block">
+        <span data-i18n="theme">Тема</span>
+        <div class="theme-switch" role="radiogroup" aria-label="Theme">
+          <button type="button" data-theme-choice="system" data-i18n="themeSystem">Системная</button>
+          <button type="button" data-theme-choice="light" data-i18n="themeLight">Светлая</button>
+          <button type="button" data-theme-choice="dark" data-i18n="themeDark">Тёмная</button>
+        </div>
+      </div>
+      <button id="logoutButton" type="button" class="danger full" data-i18n="signout">Выйти</button>
+    </div>
+  </section>
+
+
+  <section id="discardSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="discardTitle">
+    <div class="sheet-content action-content discard-content">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2 id="discardTitle" data-i18n="discardTitle">Закрыть без сохранения?</h2>
+        <button id="closeDiscardButton" class="icon-button close-button" type="button" aria-label="Close"><svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <p data-i18n="discardHint">Текст напоминания уже введён. Черновик будет потерян.</p>
+      <div class="discard-actions">
+        <button id="continueDraftButton" type="button" class="secondary" data-i18n="continueDraft">Продолжить добавление</button>
+        <button id="discardDraftButton" type="button" class="danger" data-i18n="discardDraft">Закрыть без сохранения</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

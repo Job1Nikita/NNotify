@@ -1,22 +1,68 @@
-﻿<Window x:Class="NNotify.Windows.SettingsWindow"
+<Window x:Class="NNotify.Windows.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:NNotify.Localization"
         Title="{loc:Loc SettingsWindowTitle}"
-        MinHeight="680"
-        Width="600"
-        SizeToContent="Height"
-        ResizeMode="NoResize"
+        FontFamily="Segoe UI"
+        Width="1040"
+        Height="760"
+        MinWidth="920"
+        MinHeight="660"
+        ResizeMode="CanResize"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
-        UseLayoutRounding="True"
-        SnapsToDevicePixels="True"
+        Opacity="0"
+        UseLayoutRounding="False"
+        SnapsToDevicePixels="False"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
-        <Style x:Key="RoundedSettingsTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Padding" Value="8,4" />
-            <Setter Property="FontFamily" Value="Segoe UI" />
+        <LinearGradientBrush x:Key="SettingsActionBlueButtonBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#45A6FF" Offset="0" />
+            <GradientStop Color="#2F74EC" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SettingsActionBlueButtonHoverBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#53B1FF" Offset="0" />
+            <GradientStop Color="#3A7EF3" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SettingsActionBlueButtonPressedBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#2D93F7" Offset="0" />
+            <GradientStop Color="#2A66DC" Offset="1" />
+        </LinearGradientBrush>
+
+        <Style x:Key="SettingsShellStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="SnapsToDevicePixels" Value="False" />
+            <Setter Property="RenderOptions.EdgeMode" Value="Unspecified" />
+        </Style>
+
+        <Style x:Key="SettingsPageCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushLight}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style x:Key="SettingsSubtleCardStyle" TargetType="Border" BasedOn="{StaticResource SettingsPageCardStyle}">
+            <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+
+        <Style x:Key="SettingsFieldTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -26,19 +72,18 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="10"
-                                Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource ButtonHoverBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.45" />
+                                <Setter TargetName="Root" Property="Opacity" Value="0.48" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -46,9 +91,13 @@
             </Setter>
         </Style>
 
-        <Style x:Key="RoundedSettingsPasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
-            <Setter Property="Padding" Value="8,4" />
-            <Setter Property="FontFamily" Value="Segoe UI" />
+        <Style x:Key="SettingsFieldPasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -58,16 +107,125 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="10"
-                                Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource ButtonHoverBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.48" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsEmbeddedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsEmbeddedPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsSaveButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#3E85F5" />
+            <Setter Property="Foreground" Value="#F4FAFF" />
+            <Setter Property="TextElement.Foreground" Value="#F4FAFF" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="11"
+                                SnapsToDevicePixels="True"
+                                TextElement.Foreground="#F4FAFF">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#4A90FF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#3478E3" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.45" />
@@ -77,281 +235,640 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </Window.Resources>
-    <Grid Background="Transparent">
-        <Border Style="{StaticResource PanelCardStyle}" Margin="16" Padding="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="12,10,3,6" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="24" Height="24" CornerRadius="7" Background="{DynamicResource AccentGradientBrush}" ClipToBounds="True" VerticalAlignment="Center">
+
+        <Style x:Key="SettingsLinkButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="26" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="Transparent" CornerRadius="6" Padding="0,2">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.82" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.65" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsHelpBadgeStyle" TargetType="Border">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Margin" Value="6,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style TargetType="ToolTip">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushLight}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsNavItemStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="46" />
+            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Root" Background="Transparent" CornerRadius="12" SnapsToDevicePixels="True">
                             <Grid>
-                                <Viewbox Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Fill="White" Data="M4,20 V4 H8 L16,12 V4 H20 V20 H16 L8,12 V20 Z" />
-                                    </Canvas>
-                                </Viewbox>
-                                <Ellipse Width="4"
-                                         Height="4"
-                                         Fill="#8EEBFF"
-                                         HorizontalAlignment="Right"
-                                         VerticalAlignment="Top"
-                                         Margin="0,3,3,0" />
+                                <Border x:Name="AccentLine"
+                                        Width="3"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,8,0,8"
+                                        CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Opacity="0" />
+                                <ContentPresenter Margin="16,0,12,0" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
-                        <TextBlock Text="{loc:Loc SettingsWindowTitle}" Margin="8,0,0,0" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" />
-                    </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ListRowSelectedBrush}" />
+                                <Setter TargetName="AccentLine" Property="Opacity" Value="1" />
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-                    <Button Grid.Column="1"
-                            Style="{StaticResource TitleBarCloseButtonStyle}"
-                            Margin="2,5,0,0"
-                            VerticalAlignment="Center"
-                            Content="&#xE8BB;"
-                            Click="OnCloseButtonClick" />
-                </Grid>
+        <Style x:Key="SettingsBadgeBorderStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="9,4" />
+            <Setter Property="Background" Value="{DynamicResource StatusDefaultBadgeBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushLight}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
 
-                <Grid Grid.Row="1" Margin="14,8,14,14">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+        <Style x:Key="SettingsBadgeTextStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
 
-                    <ScrollViewer Grid.Row="0"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  CanContentScroll="False"
-                                  Padding="0,0,0,4">
-                        <StackPanel>
-                        <TextBlock Text="{loc:Loc SettingsHeadingTelegram}" FontSize="31" FontWeight="Bold" Margin="4,0,4,8" />
+        <Style x:Key="SettingsSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="27" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
 
-                        <TextBlock Text="{loc:Loc SettingsLabelBotToken}" FontWeight="SemiBold" Margin="4,4,4,0" />
-                        <PasswordBox x:Name="BotTokenPasswordBox"
-                                     Height="38"
-                                     Margin="4,4,4,0"
-                                     Style="{StaticResource RoundedSettingsPasswordBoxStyle}"
-                                     GotKeyboardFocus="OnBotTokenFocus"
-                                     PasswordChanged="OnBotTokenPasswordChanged" />
+        <Style x:Key="SettingsDescriptionStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,5,0,0" />
+        </Style>
 
-                        <TextBlock Text="{loc:Loc SettingsHintTokenMasked}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
+        <Style x:Key="SettingsLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,7" />
+        </Style>
 
-                        <TextBlock Text="{loc:Loc SettingsLabelChatId}" FontWeight="SemiBold" Margin="4,8,4,0" />
-                        <TextBox x:Name="ChatIdTextBox"
-                                 Height="38"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 VerticalContentAlignment="Center"
-                                 TextChanged="OnTargetTextChanged" />
+        <Style x:Key="SettingsHintStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="LineHeight" Value="17" />
+            <Setter Property="Margin" Value="0,7,0,0" />
+        </Style>
 
-                        <TextBlock Text="{loc:Loc SettingsLabelUserId}" FontWeight="SemiBold" Margin="4,8,4,0" />
-                        <TextBox x:Name="UserIdTextBox"
-                                 Height="38"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 VerticalContentAlignment="Center"
-                                 TextChanged="OnTargetTextChanged" />
-
-                        <TextBlock Text="{loc:Loc SettingsHintOnlyOneTarget}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
-
-                        <TextBlock Text="{loc:Loc SettingsHintUserStartBot}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
-
-                        <StackPanel Margin="4,8,4,0">
-                            <TextBlock Text="{loc:Loc SettingsHintTokenStorage}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0" />
-                            <TextBlock Text="{loc:Loc SettingsHintTokenProtection}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0" />
-                        </StackPanel>
-
-                        <TextBlock Text="{loc:Loc SettingsLabelHotKey}" FontWeight="SemiBold" Margin="4,8,4,0" />
-
-                        <CheckBox x:Name="EnableHotKeyCheckBox"
-                                  Content="{loc:Loc SettingsEnableHotKey}"
-                                  Margin="4,2,4,0"
-                                  Click="OnHotKeyEnabledClick" />
-
-                        <TextBox x:Name="HotKeyGestureTextBox"
-                                 Height="38"
-                                 VerticalContentAlignment="Center"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 PreviewKeyDown="OnHotKeyGesturePreviewKeyDown"
-                                 ToolTip="{loc:Loc SettingsHotKeyInputTooltip}" />
-
-                        <TextBlock Text="{loc:Loc SettingsHintHotKeyModifiers}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
-
-                        <TextBlock Text="{loc:Loc SettingsHeadingSync}" FontSize="24" FontWeight="Bold" Margin="4,14,4,6" />
-
-                        <TextBlock Text="{loc:Loc SettingsLabelSyncServer}" FontWeight="SemiBold" Margin="4,4,4,0" />
-                        <TextBox x:Name="SyncServerUrlTextBox"
-                                 Height="38"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 VerticalContentAlignment="Center" />
-
-                        <TextBlock Text="{loc:Loc SettingsLabelSyncUsername}" FontWeight="SemiBold" Margin="4,8,4,0" />
-                        <TextBox x:Name="SyncUsernameTextBox"
-                                 Height="38"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 VerticalContentAlignment="Center" />
-
-                        <TextBlock Text="{loc:Loc SettingsLabelSyncPassword}" FontWeight="SemiBold" Margin="4,8,4,0" />
-                        <PasswordBox x:Name="SyncPasswordBox"
-                                     Height="38"
-                                     Margin="4,4,4,0"
-                                     Style="{StaticResource RoundedSettingsPasswordBoxStyle}" />
-
-                        <TextBlock Text="{loc:Loc SettingsLabelSyncTelegramUserId}" FontWeight="SemiBold" Margin="4,8,4,0" />
-                        <TextBox x:Name="SyncTelegramUserIdTextBox"
-                                 Height="38"
-                                 Margin="4,4,4,0"
-                                 Style="{StaticResource RoundedSettingsTextBoxStyle}"
-                                 VerticalContentAlignment="Center" />
-
-                        <TextBlock Text="{loc:Loc SettingsHintSyncTelegramUserId}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
-
-                        <TextBlock Text="{loc:Loc SettingsHintSyncTls}"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,2,4,0" />
-
-                        <TextBlock x:Name="SyncStatusText"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="4,4,4,0" />
-
-                        <StackPanel Orientation="Horizontal" Margin="4,8,4,0">
-                            <Button x:Name="SyncRegisterButton"
-                                    Width="124"
-                                    Content="{loc:Loc SettingsButtonSyncRegister}"
-                                    Click="OnSyncRegisterClick" />
-                            <Button x:Name="SyncLoginButton"
-                                    Width="124"
-                                    Content="{loc:Loc SettingsButtonSyncLogin}"
-                                    Click="OnSyncLoginClick" />
-                            <Button x:Name="SyncLogoutButton"
-                                    Width="124"
-                                    Content="{loc:Loc SettingsButtonSyncLogout}"
-                                    Click="OnSyncLogoutClick" />
-                        </StackPanel>
-
-                        <StackPanel Margin="4,8,4,6">
-                            <TextBlock Text="{loc:Loc SettingsLabelStartup}" FontWeight="SemiBold" Margin="0,0,0,2" />
-                            <TextBlock Text="{loc:Loc SettingsHintStartup}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0" />
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
-                                <Button x:Name="StartupToggleButton"
-                                        Width="190"
-                                        Content="{loc:Loc SettingsStartupEnable}"
-                                        Click="OnStartupToggleClick" />
-                                <TextBlock x:Name="StartupStatusText"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"
-                                           Foreground="{DynamicResource SecondaryTextBrush}"
-                                           Text="{loc:Loc SettingsStartupStatusOff}" />
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Expander Margin="4,6,4,0"
-                                  IsExpanded="False"
-                                  Foreground="{DynamicResource SecondaryTextBrush}">
-                            <Expander.Header>
-                                <TextBlock Text="{loc:Loc SettingsAboutTitle}" FontWeight="SemiBold" />
-                            </Expander.Header>
-                            <Border Margin="0,6,0,0"
-                                    Padding="10,8"
-                                    BorderBrush="{DynamicResource BorderBrushLight}"
-                                    BorderThickness="1"
-                                    CornerRadius="10"
-                                    ClipToBounds="True"
-                                    Background="{DynamicResource PanelBackgroundBrush}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="156" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc SettingsAboutNameLabel}" />
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc SettingsAboutNameValue}" FontWeight="SemiBold" />
-
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc SettingsAboutDeveloperLabel}" />
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Loc SettingsAboutDeveloperValue}" />
-
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc SettingsAboutVersionLabel}" />
-                                    <TextBlock x:Name="AppVersionValueText" Grid.Row="2" Grid.Column="1" />
-
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Loc SettingsAboutPlatformLabel}" />
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{loc:Loc SettingsAboutPlatformValue}" TextWrapping="Wrap" />
-
-                                    <TextBlock x:Name="AboutSignatureText"
-                                               Grid.Row="4"
-                                               Grid.Column="0"
-                                               Grid.ColumnSpan="2"
-                                               Text="{loc:Loc SettingsAboutSignature}"
-                                               Margin="0,6,0,0"
-                                               Foreground="{DynamicResource PrimaryTextBrush}"
-                                               FontWeight="SemiBold"
-                                               MouseLeftButtonDown="OnAboutSignatureMouseLeftButtonDown" />
-                                </Grid>
+        <Style x:Key="SettingsSwitchStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Track"
+                                    Width="40"
+                                    Height="22"
+                                    CornerRadius="11"
+                                    Background="{DynamicResource ButtonBackgroundBrush}"
+                                    BorderBrush="{DynamicResource ButtonBorderBrush}"
+                                    BorderThickness="1">
+                                <Ellipse x:Name="Thumb"
+                                         Width="16"
+                                         Height="16"
+                                         Margin="3,0,0,0"
+                                         HorizontalAlignment="Left"
+                                         Fill="{DynamicResource SecondaryTextBrush}" />
                             </Border>
-                        </Expander>
-                        </StackPanel>
-                    </ScrollViewer>
+                            <ContentPresenter Grid.Column="2" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Thumb" Property="Fill" Value="White" />
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="Thumb" Property="Margin" Value="0,0,3,0" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-                    <Grid Grid.Row="1" Margin="0,8,0,0">
+    <Grid Background="Transparent" SnapsToDevicePixels="False" RenderOptions.EdgeMode="Unspecified">
+        <!-- Keep the rounded shell away from the layered-window edges.
+             Without this transparent gutter WPF can blend the anti-aliased corner pixels
+             against the window boundary, which makes the corners look stepped/dirty on
+             white and black backgrounds. The visible shell remains 1040x760. -->
+        <Grid x:Name="SettingsDialogSurface" Margin="0" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="SettingsShellScale" ScaleX="0.985" ScaleY="0.985" />
+                    <TranslateTransform x:Name="SettingsShellTranslate" Y="10" />
+                </TransformGroup>
+            </Grid.RenderTransform>
+
+
+            <Border x:Name="SettingsShell" Style="{StaticResource SettingsShellStyle}" ClipToBounds="False" SnapsToDevicePixels="False" RenderOptions.EdgeMode="Unspecified">
+            <Grid x:Name="SettingsShellContent" Background="Transparent" ClipToBounds="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="64" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="64" />
+                </Grid.RowDefinitions>
+
+                <Border x:Name="TitleBar" Grid.Row="0" Background="Transparent" BorderBrush="{DynamicResource BorderBrushLight}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleBarMouseLeftButtonDown">
+                    <Grid Margin="22,0,12,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-
-                        <Button x:Name="TestButton"
-                                Grid.Column="0"
-                                Content="{loc:Loc SettingsButtonTestTelegram}"
-                                Width="138"
-                                HorizontalAlignment="Left"
-                                Click="OnTestClick" />
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button x:Name="CancelButton"
-                                    Content="{loc:Loc CommonCancel}"
-                                    Width="102"
-                                    IsCancel="True" />
-                            <Button x:Name="SaveButton"
-                                    Content="{loc:Loc CommonSave}"
-                                    Width="124"
-                                    Style="{StaticResource AccentButtonStyle}"
-                                    Click="OnSaveClick" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="30" Height="30" CornerRadius="9" Background="{DynamicResource AccentGradientBrush}" ClipToBounds="True">
+                                <Grid>
+                                    <Viewbox Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Fill="White" Data="M4,20 V4 H8 L16,12 V4 H20 V20 H16 L8,12 V20 Z" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <Ellipse Width="5" Height="5" Fill="#8EEBFF" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0" />
+                                </Grid>
+                            </Border>
+                            <TextBlock Text="{loc:Loc SettingsWindowTitle}" Margin="12,0,0,0" FontWeight="SemiBold" FontSize="20" VerticalAlignment="Center" />
                         </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource TitleBarCloseButtonStyle}"
+                                Content="&#xE8BB;"
+                                VerticalAlignment="Center"
+                                Click="OnCloseButtonClick" />
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="232" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrushLight}" BorderThickness="0,0,1,0" Background="{DynamicResource WindowBackgroundBrush}">
+                        <StackPanel Margin="16,18,14,18">
+                            <RadioButton x:Name="TelegramNavButton" Style="{StaticResource SettingsNavItemStyle}" GroupName="SettingsNav" IsChecked="True" Checked="OnNavigationChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Data="M21.7,4.3 18.9,19.7C18.7,20.8 17.8,21.2 16.9,20.7L11.8,16.9 9.4,19.1C9.1,19.4 8.5,19.2 8.5,18.7V15.5L18.2,6.8C18.6,6.4 18.1,5.9 17.7,6.2L5.7,13.7 1.8,12.5C0.8,12.2 0.8,10.8 1.8,10.4L20,3.4C21,3 21.9,3.5 21.7,4.3Z" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="{loc:Loc SettingsHeadingTelegram}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="SyncNavButton" Style="{StaticResource SettingsNavItemStyle}" GroupName="SettingsNav" Checked="OnNavigationChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" Data="M4,7 H16 M16,7 L13,4 M16,7 L13,10 M20,17 H8 M8,17 L11,14 M8,17 L11,20" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="{loc:Loc SettingsNavSync}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="HotKeysNavButton" Style="{StaticResource SettingsNavItemStyle}" GroupName="SettingsNav" Checked="OnNavigationChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.9" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" Data="M4,6 H20 V18 H4 Z M7,9 H7.2 M10,9 H10.2 M13,9 H13.2 M16,9 H16.2 M7,12 H7.2 M10,12 H10.2 M13,12 H13.2 M16,12 H16.2 M8,15 H16" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="{loc:Loc SettingsLabelHotKey}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="StartupNavButton" Style="{StaticResource SettingsNavItemStyle}" GroupName="SettingsNav" Checked="OnNavigationChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" Data="M12,3 V12 M7,6.2C5.2,7.6 4,9.7 4,12.1C4,16.5 7.6,20 12,20C16.4,20 20,16.5 20,12.1C20,9.7 18.8,7.6 17,6.2" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="{loc:Loc SettingsLabelStartup}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="AboutNavButton" Style="{StaticResource SettingsNavItemStyle}" GroupName="SettingsNav" Checked="OnNavigationChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" Data="M12,21C16.97,21 21,16.97 21,12C21,7.03 16.97,3 12,3C7.03,3 3,7.03 3,12C3,16.97 7.03,21 12,21Z M12,10.8V16 M12,7.8V8" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="{loc:Loc SettingsAboutTitle}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" Style="{DynamicResource ListViewScrollViewerStyle}">
+                            <Grid Margin="32,22,32,16" MaxWidth="760" HorizontalAlignment="Left">
+                                <Grid x:Name="TelegramPage">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="46" Height="46" CornerRadius="23" Background="{DynamicResource AccentGradientBrush}" Margin="0,0,16,0" SnapsToDevicePixels="True">
+                                                    <Viewbox Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Canvas Width="24" Height="24">
+                                                            <Path Fill="White" Data="M21.7,4.3 18.9,19.7C18.7,20.8 17.8,21.2 16.9,20.7L11.8,16.9 9.4,19.1C9.1,19.4 8.5,19.2 8.5,18.7V15.5L18.2,6.8C18.6,6.4 18.1,5.9 17.7,6.2L5.7,13.7 1.8,12.5C0.8,12.2 0.8,10.8 1.8,10.4L20,3.4C21,3 21.9,3.5 21.7,4.3Z" />
+                                                        </Canvas>
+                                                    </Viewbox>
+                                                </Border>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{loc:Loc SettingsHeadingTelegram}" Style="{StaticResource SettingsSectionTitleStyle}" />
+                                                    <TextBlock Text="{loc:Loc SettingsDescTelegram}" Style="{StaticResource SettingsDescriptionStyle}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <Border x:Name="TelegramStatusBadge" Grid.Column="1" Style="{StaticResource SettingsBadgeBorderStyle}" VerticalAlignment="Top" Margin="18,2,0,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="#1E8D4D" FontSize="11" Margin="0,0,7,0" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="TelegramStatusText" Style="{StaticResource SettingsBadgeTextStyle}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+
+                                        <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                    <TextBlock Text="{loc:Loc SettingsLabelBotToken}" Style="{StaticResource SettingsLabelStyle}" Margin="0" />
+                                                    <Border Style="{StaticResource SettingsHelpBadgeStyle}" ToolTip="{loc:Loc SettingsHintTokenMasked}">
+                                                        <TextBlock Text="?" Foreground="{DynamicResource AccentBrush}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" TextOptions.TextFormattingMode="Display" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <Border x:Name="BotTokenFieldBorder" Height="40" CornerRadius="10" Background="{DynamicResource ButtonBackgroundBrush}" BorderBrush="{DynamicResource BorderBrushLight}" BorderThickness="1" Margin="0,0,0,8">
+                                                    <Grid>
+                                                        <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="15" Width="42" HorizontalAlignment="Left" TextAlignment="Center" VerticalAlignment="Center" />
+                                                        <PasswordBox x:Name="BotTokenPasswordBox"
+                                                                     Style="{StaticResource SettingsEmbeddedPasswordBoxStyle}"
+                                                                     Margin="42,0,42,0"
+                                                                     GotKeyboardFocus="OnBotTokenFocus"
+                                                                     PasswordChanged="OnBotTokenPasswordChanged" />
+                                                        <TextBox x:Name="BotTokenRevealTextBox"
+                                                                 Style="{StaticResource SettingsEmbeddedTextBoxStyle}"
+                                                                 Margin="42,0,42,0"
+                                                                 Visibility="Collapsed"
+                                                                 TextChanged="OnBotTokenRevealTextChanged" />
+                                                        <Button x:Name="BotTokenVisibilityButton"
+                                                                Grid.Column="2"
+                                                                Style="{StaticResource SettingsIconButtonStyle}"
+                                                                Content="&#xE890;"
+                                                                HorizontalAlignment="Right"
+                                                                VerticalAlignment="Center"
+                                                                Margin="0,0,4,0"
+                                                                Click="OnBotTokenVisibilityClick"
+                                                                ToolTip="Показать / скрыть токен" />
+                                                    </Grid>
+                                                </Border>
+                                                <TextBlock Text="{loc:Loc SettingsHintTokenMasked}" Style="{StaticResource SettingsHintStyle}" Margin="0,0,0,10" />
+
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                    <TextBlock Text="{loc:Loc SettingsTargetCombinedLabel}" Style="{StaticResource SettingsLabelStyle}" Margin="0" />
+                                                    <Border Style="{StaticResource SettingsHelpBadgeStyle}" ToolTip="{loc:Loc SettingsHintTelegramTarget}">
+                                                        <TextBlock Text="?" Foreground="{DynamicResource AccentBrush}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" TextOptions.TextFormattingMode="Display" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <Border x:Name="TelegramTargetFieldBorder" Height="40" CornerRadius="10" Background="{DynamicResource ButtonBackgroundBrush}" BorderBrush="{DynamicResource BorderBrushLight}" BorderThickness="1" Margin="0,0,0,8">
+                                                    <Grid>
+                                                        <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="16" Width="42" HorizontalAlignment="Left" TextAlignment="Center" VerticalAlignment="Center" />
+                                                        <TextBox x:Name="TelegramTargetTextBox" Style="{StaticResource SettingsEmbeddedTextBoxStyle}" Margin="42,0,12,0" TextChanged="OnTargetTextChanged" />
+                                                    </Grid>
+                                                </Border>
+                                                <TextBlock Text="{loc:Loc SettingsHintTelegramTarget}" Style="{StaticResource SettingsHintStyle}" Margin="0,0,0,12" />
+
+                                                <Button x:Name="TestButton" Width="194" Height="38" HorizontalAlignment="Left" Click="OnTestClick">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Viewbox Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                            <Canvas Width="24" Height="24">
+                                                                <Path Fill="{DynamicResource AccentBrush}" Data="M21.7,4.3 18.9,19.7C18.7,20.8 17.8,21.2 16.9,20.7L11.8,16.9 9.4,19.1C9.1,19.4 8.5,19.2 8.5,18.7V15.5L18.2,6.8C18.6,6.4 18.1,5.9 17.7,6.2L5.7,13.7 1.8,12.5C0.8,12.2 0.8,10.8 1.8,10.4L20,3.4C21,3 21.9,3.5 21.7,4.3Z" />
+                                                            </Canvas>
+                                                        </Viewbox>
+                                                        <TextBlock Text="Проверить Telegram" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,14,0,0">
+                                            <StackPanel>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="&#xE895;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" FontSize="17" Margin="0,1,10,0" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{loc:Loc SettingsSyncSummaryTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    <Border x:Name="SyncSummaryStatusBadge" Grid.Column="1" Style="{StaticResource SettingsBadgeBorderStyle}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="#1E8D4D" FontSize="11" Margin="0,0,7,0" VerticalAlignment="Center" />
+                                                            <TextBlock x:Name="SyncSummaryStatusText" Style="{StaticResource SettingsBadgeTextStyle}" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="24" />
+                                                        <ColumnDefinition Width="112" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="24" />
+                                                        <RowDefinition Height="24" />
+                                                        <RowDefinition Height="24" />
+                                                        <RowDefinition Height="24" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc SettingsSyncSummaryServer}" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="SyncSummaryServerText" Grid.Row="0" Grid.Column="2" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Loc SettingsSyncSummaryLogin}" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="SyncSummaryLoginText" Grid.Row="1" Grid.Column="2" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Loc SettingsSyncSummaryAlerts}" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="SyncSummaryAlertIdText" Grid.Row="2" Grid.Column="2" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Защита" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="{loc:Loc SettingsSyncSummarySecure}" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                                </Grid>
+                                                <Button Style="{StaticResource SettingsLinkButtonStyle}" Click="OnOpenSyncSettingsClick">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <TextBlock Text="{loc:Loc SettingsButtonOpenSyncSettings}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="&#xE974;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" FontSize="11" Margin="8,1,0,0" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid x:Name="SyncPage" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,22">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{loc:Loc SettingsHeadingSync}" Style="{StaticResource SettingsSectionTitleStyle}" />
+                                                <TextBlock Text="{loc:Loc SettingsDescSync}" Style="{StaticResource SettingsDescriptionStyle}" />
+                                            </StackPanel>
+                                            <Border x:Name="SyncPageStatusBadge" Grid.Column="1" Style="{StaticResource SettingsBadgeBorderStyle}" VerticalAlignment="Top" Margin="18,2,0,0">
+                                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="#1E8D4D" FontSize="11" Margin="0,0,7,0" VerticalAlignment="Center" /><TextBlock x:Name="SyncPageStatusBadgeText" Style="{StaticResource SettingsBadgeTextStyle}" /></StackPanel>
+                                            </Border>
+                                        </Grid>
+
+                                        <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <StackPanel>
+                                                <TextBlock Text="{loc:Loc SettingsLabelSyncServer}" Style="{StaticResource SettingsLabelStyle}" />
+                                                <TextBox x:Name="SyncServerUrlTextBox" Style="{StaticResource SettingsFieldTextBoxStyle}" Margin="0,0,0,14" />
+
+                                                <Grid Margin="0,0,0,14">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="12" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{loc:Loc SettingsLabelSyncUsername}" Style="{StaticResource SettingsLabelStyle}" />
+                                                        <TextBox x:Name="SyncUsernameTextBox" Style="{StaticResource SettingsFieldTextBoxStyle}" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="{loc:Loc SettingsLabelSyncPassword}" Style="{StaticResource SettingsLabelStyle}" />
+                                                        <PasswordBox x:Name="SyncPasswordBox" Style="{StaticResource SettingsFieldPasswordBoxStyle}" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBlock Text="{loc:Loc SettingsLabelSyncTelegramUserId}" Style="{StaticResource SettingsLabelStyle}" />
+                                                <TextBox x:Name="SyncTelegramUserIdTextBox" Style="{StaticResource SettingsFieldTextBoxStyle}" Margin="0,0,0,7" />
+                                                <TextBlock Text="{loc:Loc SettingsHintSyncTelegramUserId}" Style="{StaticResource SettingsHintStyle}" Margin="0,0,0,3" />
+                                                <TextBlock Text="{loc:Loc SettingsHintSyncTls}" Style="{StaticResource SettingsHintStyle}" Margin="0,0,0,12" />
+                                                <TextBlock x:Name="SyncStatusText" Foreground="{DynamicResource SecondaryTextBrush}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,14" />
+
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button x:Name="SyncRegisterButton" Width="118" Height="38" Content="{loc:Loc SettingsButtonSyncRegister}" Click="OnSyncRegisterClick" />
+                                                    <Button x:Name="SyncLoginButton" Width="118" Height="38" Content="{loc:Loc SettingsButtonSyncLogin}" Click="OnSyncLoginClick" />
+                                                    <Button x:Name="SyncLogoutButton" Width="118" Height="38" Content="{loc:Loc SettingsButtonSyncLogout}" Click="OnSyncLogoutClick" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid x:Name="HotKeysPage" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock Text="{loc:Loc SettingsLabelHotKey}" Style="{StaticResource SettingsSectionTitleStyle}" />
+                                        <TextBlock Text="{loc:Loc SettingsDescHotKey}" Style="{StaticResource SettingsDescriptionStyle}" Margin="0,5,0,22" />
+                                        <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <StackPanel>
+                                                <CheckBox x:Name="EnableHotKeyCheckBox" Style="{StaticResource SettingsSwitchStyle}" Content="{loc:Loc SettingsEnableHotKey}" Margin="0,0,0,18" Click="OnHotKeyEnabledClick" />
+                                                <TextBlock Text="{loc:Loc SettingsHotKeyRecorderLabel}" Style="{StaticResource SettingsLabelStyle}" />
+                                                <TextBox x:Name="HotKeyGestureTextBox" Style="{StaticResource SettingsFieldTextBoxStyle}" PreviewKeyDown="OnHotKeyGesturePreviewKeyDown" ToolTip="{loc:Loc SettingsHotKeyInputTooltip}" />
+                                                <TextBlock Text="{loc:Loc SettingsHintHotKeyModifiers}" Style="{StaticResource SettingsHintStyle}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid x:Name="StartupPage" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,22">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{loc:Loc SettingsLabelStartup}" Style="{StaticResource SettingsSectionTitleStyle}" />
+                                                <TextBlock Text="{loc:Loc SettingsDescStartup}" Style="{StaticResource SettingsDescriptionStyle}" />
+                                            </StackPanel>
+                                            <Border x:Name="StartupStatusBadge" Grid.Column="1" Style="{StaticResource SettingsBadgeBorderStyle}" VerticalAlignment="Top" Margin="18,2,0,0">
+                                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Foreground="#1E8D4D" FontSize="11" Margin="0,0,7,0" VerticalAlignment="Center" /><TextBlock x:Name="StartupStatusText" Style="{StaticResource SettingsBadgeTextStyle}" Text="{loc:Loc SettingsStartupStatusOff}" /></StackPanel>
+                                            </Border>
+                                        </Grid>
+                                        <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{loc:Loc SettingsStartupToggleLabel}" FontSize="16" FontWeight="SemiBold" Margin="0" />
+                                                    <TextBlock Text="{loc:Loc SettingsHintStartup}" Style="{StaticResource SettingsHintStyle}" Margin="0,7,28,0" />
+                                                </StackPanel>
+                                                <Button x:Name="StartupToggleButton" Grid.Column="1" Width="176" Height="38" Content="{loc:Loc SettingsStartupEnable}" Click="OnStartupToggleClick" />
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid x:Name="AboutPage" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <TextBlock Text="{loc:Loc SettingsAboutTitle}" Style="{StaticResource SettingsSectionTitleStyle}" />
+                                        <TextBlock Text="{loc:Loc SettingsAboutDescription}" Style="{StaticResource SettingsDescriptionStyle}" Margin="0,5,0,22" />
+                                        <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="78" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="58" Height="58" CornerRadius="16" Background="{DynamicResource AccentGradientBrush}" ClipToBounds="True" VerticalAlignment="Top">
+                                                    <Grid>
+                                                        <Viewbox Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                            <Canvas Width="24" Height="24">
+                                                                <Path Fill="White" Data="M4,20 V4 H8 L16,12 V4 H20 V20 H16 L8,12 V20 Z" />
+                                                            </Canvas>
+                                                        </Viewbox>
+                                                        <Ellipse Width="8" Height="8" Fill="#8EEBFF" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0" />
+                                                    </Grid>
+                                                </Border>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="NNotify" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,12" />
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="132" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Loc SettingsAboutDeveloperLabel}" Foreground="{DynamicResource SecondaryTextBrush}" />
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc SettingsAboutDeveloperValue}" FontWeight="SemiBold" />
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc SettingsAboutVersionLabel}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,7,0,0" />
+                                                        <TextBlock x:Name="AppVersionValueText" Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Margin="0,7,0,0" />
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc SettingsAboutPlatformLabel}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,7,0,0" />
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Loc SettingsAboutPlatformValue}" FontWeight="SemiBold" Margin="0,7,0,0" />
+                                                    </Grid>
+                                                    <TextBlock x:Name="AboutSignatureText" Text="NNotify: No More 'Oops'" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,17,0,0" MouseLeftButtonDown="OnAboutSignatureMouseLeftButtonDown" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,16,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="{loc:Loc SettingsLabelUpdates}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10" />
+                                                <CheckBox x:Name="EnableUpdateCheckBox" Style="{StaticResource SettingsSwitchStyle}" Content="{loc:Loc SettingsEnableUpdateCheck}" Margin="0,0,0,10" />
+                                                <TextBlock Text="{loc:Loc SettingsHintUpdates}" Style="{StaticResource SettingsHintStyle}" Margin="0,0,0,12" />
+                                                <Button x:Name="CheckUpdatesButton" Width="178" Height="38" HorizontalAlignment="Left" Content="{loc:Loc SettingsButtonCheckUpdates}" Click="OnCheckUpdatesClick" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
+
+                <Border Grid.Row="2" BorderBrush="{DynamicResource BorderBrushLight}" BorderThickness="0,1,0,0">
+                    <Grid Margin="0,0,24,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="CancelButton" Content="{loc:Loc CommonCancel}" Width="124" Height="38" Click="OnCancelClick" />
+                            <Button x:Name="SaveButton" Width="142" Height="38" Style="{StaticResource SettingsSaveButtonStyle}" Click="OnSaveClick">
+                                <TextBlock Text="{loc:Loc CommonSave}" Foreground="#F4FAFF" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Grid>
-        </Border>
+            </Border>
+        </Grid>
+        <Border Width="26" Height="26" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" Cursor="SizeNWSE" MouseLeftButtonDown="OnResizeGripMouseLeftButtonDown" />
     </Grid>
 </Window>

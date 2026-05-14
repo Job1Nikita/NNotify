@@ -1,4 +1,5 @@
 ﻿using System.Media;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -44,6 +45,7 @@ public partial class App : System.Windows.Application
     public TelegramService TelegramService { get; private set; } = null!;
     public SyncAuthService SyncAuthService { get; private set; } = null!;
     public SyncReminderService SyncReminderService { get; private set; } = null!;
+    public UpdateService UpdateService { get; private set; } = null!;
     public SchedulerService Scheduler { get; private set; } = null!;
     public AppSettings Settings { get; private set; } = new();
     public MainWindow? MainAppWindow { get; private set; }
@@ -76,6 +78,7 @@ public partial class App : System.Windows.Application
 
             TelegramService = new TelegramService();
             SyncAuthService = new SyncAuthService();
+            UpdateService = new UpdateService();
             SyncReminderService = new SyncReminderService(Repository, SettingsService, SyncAuthService, () => Settings, SaveSettings);
             SyncReminderService.RemoteRemindersApplied += OnRemoteRemindersApplied;
             Scheduler = new SchedulerService(Repository, TelegramService, SettingsService, () => Settings);
@@ -99,6 +102,7 @@ public partial class App : System.Windows.Application
 
             Scheduler.Start();
             SyncReminderService.Start();
+            ScheduleStartupUpdateCheck();
         }
         catch (Exception ex)
         {
@@ -157,7 +161,7 @@ public partial class App : System.Windows.Application
                 dialog.Loaded += (_, _) => BringWindowToFront(dialog);
             }
 
-            if (dialog.ShowDialog() != true || dialog.EditedReminder is null)
+            if (ShowDialogWithOptionalBackdrop(dialog) != true || dialog.EditedReminder is null)
             {
                 return;
             }
@@ -197,7 +201,7 @@ public partial class App : System.Windows.Application
                 dialog.Owner = dialogOwner;
             }
 
-            if (dialog.ShowDialog() != true || dialog.EditedReminder is null)
+            if (ShowDialogWithOptionalBackdrop(dialog) != true || dialog.EditedReminder is null)
             {
                 return;
             }
@@ -223,7 +227,7 @@ public partial class App : System.Windows.Application
                 Owner = owner ?? MainAppWindow
             };
 
-            if (dialog.ShowDialog() != true || dialog.EditedReminder is null)
+            if (ShowDialogWithOptionalBackdrop(dialog) != true || dialog.EditedReminder is null)
             {
                 return false;
             }
@@ -307,6 +311,144 @@ public partial class App : System.Windows.Application
     public void SaveSettings()
     {
         SettingsService.Save(Settings);
+    }
+
+    public async Task CheckForUpdatesInteractiveAsync(bool showUpToDateMessage)
+    {
+        try
+        {
+            var result = await UpdateService.CheckLatestAsync();
+            Settings.LastUpdateCheckUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            SaveSettings();
+
+            if (!result.Success)
+            {
+                if (showUpToDateMessage)
+                {
+                    ShowInfoDialog(Loc.Text("UpdateCheckFailedTitle"), Loc.Text("UpdateCheckFailedBody"));
+                }
+
+                return;
+            }
+
+            if (!result.IsUpdateAvailable || string.IsNullOrWhiteSpace(result.LatestVersion))
+            {
+                if (showUpToDateMessage)
+                {
+                    ShowInfoDialog(
+                        Loc.Text("UpdateNoUpdatesTitle"),
+                        Loc.Format("UpdateNoUpdatesBodyTemplate", result.CurrentVersion));
+                }
+
+                return;
+            }
+
+            await ShowUpdateAvailableDialogAsync(result, respectIgnoredVersion: !showUpToDateMessage);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log("Failed to check for updates", ex);
+            if (showUpToDateMessage)
+            {
+                ShowInfoDialog(Loc.Text("UpdateCheckFailedTitle"), Loc.Text("UpdateCheckFailedBody"));
+            }
+        }
+    }
+
+    private void ScheduleStartupUpdateCheck()
+    {
+        if (!Settings.CheckUpdatesAutomatically)
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        if (Settings.LastUpdateCheckUtc > 0 &&
+            now - Settings.LastUpdateCheckUtc < (long)TimeSpan.FromHours(24).TotalSeconds)
+        {
+            return;
+        }
+
+        _ = Dispatcher.InvokeAsync(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3));
+            await CheckForUpdatesInteractiveAsync(showUpToDateMessage: false);
+        });
+    }
+
+    private async Task ShowUpdateAvailableDialogAsync(UpdateCheckResult result, bool respectIgnoredVersion)
+    {
+        if (string.IsNullOrWhiteSpace(result.LatestVersion))
+        {
+            return;
+        }
+
+        if (respectIgnoredVersion &&
+            string.Equals(Settings.IgnoredUpdateVersion, result.LatestVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await Dispatcher.InvokeAsync(() =>
+        {
+            var dialog = new UpdateAvailableWindow(result.CurrentVersion, result.LatestVersion)
+            {
+                Owner = MainAppWindow
+            };
+
+            ShowDialogWithOptionalBackdrop(dialog);
+
+            if (dialog.Action == UpdateDialogAction.IgnoreVersion)
+            {
+                Settings.IgnoredUpdateVersion = result.LatestVersion;
+                SaveSettings();
+                return;
+            }
+
+            if (dialog.Action == UpdateDialogAction.OpenReleasePage)
+            {
+                OpenExternalUrl(string.IsNullOrWhiteSpace(result.ReleaseUrl)
+                    ? UpdateService.ReleasesPageUrl
+                    : result.ReleaseUrl);
+            }
+        });
+    }
+
+    private void ShowInfoDialog(string title, string message)
+    {
+        var dialog = new ConfirmDialogWindow(
+            title,
+            message,
+            confirmText: Loc.Text("CommonOk"),
+            showCancel: false,
+            destructive: false)
+        {
+            Owner = MainAppWindow
+        };
+
+        ShowDialogWithOptionalBackdrop(dialog);
+    }
+
+    private static bool? ShowDialogWithOptionalBackdrop(Window dialog)
+    {
+        return dialog.Owner is MainWindow mainWindow
+            ? mainWindow.ShowDialogWithBackdrop(dialog)
+            : dialog.ShowDialog();
+    }
+
+    private static void OpenExternalUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url)
+            {
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log("Failed to open update release page", ex);
+        }
     }
 
     private bool TryAcquireSingleInstanceLock()
@@ -842,17 +984,23 @@ public partial class App : System.Windows.Application
     {
         if (dark)
         {
-            SetBrush("WindowBackgroundBrush", "#151B27");
-            SetBrush("PanelBackgroundBrush", "#1F2735");
+            SetBrush("WindowBackgroundBrush", "#101827");
+            SetBrush("PanelBackgroundBrush", "#182235");
             SetBrush("PrimaryTextBrush", "#EAF0FA");
             SetBrush("SecondaryTextBrush", "#9AACCB");
             SetBrush("AccentBrush", "#57A6FF");
             SetBrush("AccentTextBrush", "#081522");
-            SetBrush("BorderBrushLight", "#314058");
-            SetBrush("HoverBrush", "#2A364B");
+            SetBrush("BorderBrushLight", "#2A3A50");
+            SetBrush("HoverBrush", "#223047");
+            SetBrush("ButtonBackgroundBrush", "#192438");
+            SetBrush("ButtonHoverBackgroundBrush", "#21314A");
+            SetBrush("ButtonPressedBackgroundBrush", "#172238");
+            SetBrush("ButtonBorderBrush", "#30435C");
+            SetBrush("ButtonHoverBorderBrush", "#5C9BEA");
             SetBrush("ListRowBorderBrush", "#2F3D54");
             SetBrush("ListRowHoverBrush", "#28364B");
-            SetBrush("ListRowSelectedBrush", "#345070");
+            SetBrush("ListRowSelectedBrush", "#1D3D63");
+            SetBrush("SelectedRowBorderBrush", "#46658C");
             SetBrush("ListHeaderBackgroundBrush", "#263246");
             SetBrush("ListHeaderHoverBrush", "#32425A");
             SetBrush("ContextMenuBackgroundBrush", "#1F2735");
@@ -867,14 +1015,15 @@ public partial class App : System.Windows.Application
             SetBrush("PriorityP0BadgeBrush", "#5A2F3B");
             SetBrush("PriorityP1BadgeBrush", "#27476A");
             SetBrush("PriorityP2BadgeBrush", "#24513B");
-            SetBrush("StatusDefaultBadgeBrush", "#30486A");
+            SetBrush("StatusDefaultBadgeBrush", "#203B5F");
             SetBrush("StatusAckBadgeBrush", "#24513B");
             SetBrush("StatusMissedBadgeBrush", "#5A462E");
             SetBrush("StatusFiredBadgeBrush", "#5A2F3B");
-            SetBrush("ScrollBarTrackBrush", "#1B2738");
-            SetBrush("ScrollBarThumbBrush", "#4C5E78");
+            SetBrush("ScrollBarTrackBrush", "#121D2E");
+            SetBrush("ScrollBarThumbBrush", "#3B4D68");
             SetBrush("ScrollBarThumbHoverBrush", "#647A98");
             SetBrush("ScrollBarThumbPressedBrush", "#7690B4");
+            SetBrush("ModalBackdropBrush", "#66000000");
             SetSystemBrush(System.Windows.SystemColors.ControlBrushKey, "#1B2738");
             SetSystemBrush(System.Windows.SystemColors.ControlLightBrushKey, "#314058");
             SetSystemBrush(System.Windows.SystemColors.ControlDarkBrushKey, "#314058");
@@ -888,22 +1037,28 @@ public partial class App : System.Windows.Application
             SetSystemBrush(System.Windows.SystemColors.InactiveBorderBrushKey, "#314058");
             SetSystemBrush(System.Windows.SystemColors.ActiveBorderBrushKey, "#314058");
             SetGradient("MainBackgroundBrush", "#101723", "#172033", "#0F2A27");
-            SetGradient("AccentGradientBrush", "#70B8FF", "#4D82FF");
-            SetGradient("AccentGradientHoverBrush", "#8DC8FF", "#6A99FF");
+            SetGradient("AccentGradientBrush", "#25BAFF", "#377CFF");
+            SetGradient("AccentGradientHoverBrush", "#37C2FF", "#4C8AFF");
         }
         else
         {
-            SetBrush("WindowBackgroundBrush", "#F4F7FC");
+            SetBrush("WindowBackgroundBrush", "#F6F9FE");
             SetBrush("PanelBackgroundBrush", "#FFFFFF");
             SetBrush("PrimaryTextBrush", "#1B2635");
             SetBrush("SecondaryTextBrush", "#617189");
             SetBrush("AccentBrush", "#2C78FF");
             SetBrush("AccentTextBrush", "#FFFFFF");
-            SetBrush("BorderBrushLight", "#D7E0ED");
-            SetBrush("HoverBrush", "#EDF4FF");
+            SetBrush("BorderBrushLight", "#D9E4F2");
+            SetBrush("HoverBrush", "#EEF6FF");
+            SetBrush("ButtonBackgroundBrush", "#FFFFFF");
+            SetBrush("ButtonHoverBackgroundBrush", "#F6FAFF");
+            SetBrush("ButtonPressedBackgroundBrush", "#EDF5FF");
+            SetBrush("ButtonBorderBrush", "#CBD8EA");
+            SetBrush("ButtonHoverBorderBrush", "#87B6FF");
             SetBrush("ListRowBorderBrush", "#E8EEF6");
             SetBrush("ListRowHoverBrush", "#F1F6FF");
-            SetBrush("ListRowSelectedBrush", "#E5F0FF");
+            SetBrush("ListRowSelectedBrush", "#EAF3FF");
+            SetBrush("SelectedRowBorderBrush", "#C9DAF3");
             SetBrush("ListHeaderBackgroundBrush", "#F6FAFF");
             SetBrush("ListHeaderHoverBrush", "#FFFFFF");
             SetBrush("ContextMenuBackgroundBrush", "#FFFFFF");
@@ -922,10 +1077,11 @@ public partial class App : System.Windows.Application
             SetBrush("StatusAckBadgeBrush", "#E8F9EC");
             SetBrush("StatusMissedBadgeBrush", "#FFE9D6");
             SetBrush("StatusFiredBadgeBrush", "#FFE1E5");
-            SetBrush("ScrollBarTrackBrush", "#EEF3FA");
-            SetBrush("ScrollBarThumbBrush", "#C4D1E3");
+            SetBrush("ScrollBarTrackBrush", "#F2F6FB");
+            SetBrush("ScrollBarThumbBrush", "#B8C6DA");
             SetBrush("ScrollBarThumbHoverBrush", "#AEBFD8");
             SetBrush("ScrollBarThumbPressedBrush", "#9CB1CE");
+            SetBrush("ModalBackdropBrush", "#330F172A");
             SetSystemBrush(System.Windows.SystemColors.ControlBrushKey, "#EEF3FA");
             SetSystemBrush(System.Windows.SystemColors.ControlLightBrushKey, "#D7E0ED");
             SetSystemBrush(System.Windows.SystemColors.ControlDarkBrushKey, "#C4D1E3");
@@ -939,8 +1095,8 @@ public partial class App : System.Windows.Application
             SetSystemBrush(System.Windows.SystemColors.InactiveBorderBrushKey, "#D7E0ED");
             SetSystemBrush(System.Windows.SystemColors.ActiveBorderBrushKey, "#C4D1E3");
             SetGradient("MainBackgroundBrush", "#F2F8FF", "#F8F4FF", "#F3FFFA");
-            SetGradient("AccentGradientBrush", "#16ACFF", "#2F6BFF");
-            SetGradient("AccentGradientHoverBrush", "#35BCFF", "#4A7DFF");
+            SetGradient("AccentGradientBrush", "#25BAFF", "#377CFF");
+            SetGradient("AccentGradientHoverBrush", "#37C2FF", "#4C8AFF");
         }
     }
 
@@ -1015,7 +1171,5 @@ public partial class App : System.Windows.Application
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
 }
-
-
 
 

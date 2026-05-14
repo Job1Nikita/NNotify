@@ -332,6 +332,17 @@ export class AuthStore {
       .all(userId, sinceUtcMs) as SyncReminderRecord[];
   }
 
+  listSyncRemindersForUser(userId: string, limit = 500): SyncReminderRecord[] {
+    return this.db
+      .prepare(
+        `SELECT * FROM sync_reminders
+         WHERE user_id=?
+         ORDER BY updated_at_utc DESC
+         LIMIT ?`
+      )
+      .all(userId, limit) as SyncReminderRecord[];
+  }
+
   getSyncReminder(userId: string, reminderId: string): SyncReminderRecord | null {
     const row = this.db
       .prepare("SELECT * FROM sync_reminders WHERE user_id=? AND id=? LIMIT 1")

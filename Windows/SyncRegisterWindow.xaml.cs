@@ -21,6 +21,8 @@ public partial class SyncRegisterWindow : Window
 
         Loaded += (_, _) =>
         {
+            ModalDialogAnimator.StartEntrance(this, DialogScale, DialogTranslate);
+
             if (string.IsNullOrWhiteSpace(UsernameTextBox.Text))
             {
                 UsernameTextBox.Focus();
