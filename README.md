@@ -8,19 +8,21 @@
 ## Русская версия
 
 **Быстрые ссылки:**
-[Описание](#ru-overview) | [Возможности](#ru-features) | [Синхронизация](#ru-sync) | [Telegram](#ru-telegram) | [Безопасность](#ru-security) | [Требования](#ru-requirements) | [Запуск](#ru-run) | [Сборка](#ru-build) | [Сервер](#ru-server)
+[Описание](#ru-overview) | [Возможности](#ru-features) | [Web/PWA](#ru-pwa) | [Синхронизация](#ru-sync) | [Telegram](#ru-telegram) | [Безопасность](#ru-security) | [Требования](#ru-requirements) | [Запуск](#ru-run) | [Сборка](#ru-build) | [Сервер](#ru-server)
 
 <a id="ru-overview"></a>
 ### Описание
 
-**NNotify** — легкое десктопное приложение напоминаний для Windows.
+**NNotify** — легкое приложение напоминаний для Windows с синхронизацией, Telegram-эскалацией и web/PWA-доступом.
 
 Оно помогает не пропускать задачи: показывает заметное overlay-уведомление, позволяет подтвердить или отложить напоминание, хранит историю и при необходимости отправляет эскалацию в Telegram.
 
-Начиная с `v2.0.0`, NNotify умеет работать в двух режимах:
+Начиная с `v3.0.0`, NNotify включает обновленный Windows-клиент, сервер синхронизации и web/PWA-интерфейс для работы с напоминаниями из браузера или с телефона.
+
+NNotify умеет работать в двух режимах:
 
 - **Локальный режим** — все напоминания хранятся только на текущем ПК.
-- **Серверный режим** — напоминания синхронизируются между несколькими устройствами через NNotify Sync Server.
+- **Серверный режим** — напоминания синхронизируются между Windows-клиентом, web-версией и мобильной PWA через NNotify Sync Server.
 
 <a id="ru-screenshots"></a>
 ### Скриншоты
@@ -41,7 +43,7 @@
 ### Возможности клиента
 
 - Напоминания с датой, временем, текстом и приоритетом.
-- Приоритеты: `Важно`, `Средне`, `Низко`.
+- Приоритеты: `Высокий`, `Средний`, `Низкий`.
 - Быстрые кнопки времени: `+3`, `+5`, `+10` минут.
 - Удобный выбор даты и времени.
 - Разделы: ближайшие, пропущенные при запуске, история.
@@ -51,9 +53,29 @@
 - Глобальная горячая клавиша для быстрого добавления напоминания.
 - Автозапуск вместе с Windows.
 - Светлая и темная темы.
+- Полностью обновленный интерфейс Windows-клиента.
+- Современные окна настроек, добавления и редактирования напоминаний.
+- Проверка наличия новой версии через GitHub Releases.
 - Интерфейс на русском, английском и немецком языках.
 - Работа из системного трея.
 - Защита от запуска нескольких копий приложения.
+
+<a id="ru-pwa"></a>
+### Web/PWA
+
+NNotify v3.0.0 добавляет web-интерфейс и мобильную PWA-версию.
+
+PWA работает только через серверный режим и использует уже созданную учетную запись синхронизации. Регистрация в PWA не выполняется.
+
+В web/PWA можно:
+
+- войти под учетной записью NNotify Sync Server;
+- создавать напоминания;
+- подтверждать, откладывать, редактировать и удалять напоминания;
+- просматривать ближайшие напоминания и историю;
+- синхронизировать изменения с Windows-клиентом.
+
+На iOS PWA можно добавить на экран “Домой” через меню браузера: `Поделиться` → `На экран “Домой”`.
 
 <a id="ru-sync"></a>
 ### Серверная синхронизация
@@ -63,6 +85,7 @@
 Если включить sync-аккаунт, приложение умеет:
 
 - синхронизировать напоминания между несколькими ПК;
+- синхронизировать напоминания между Windows-клиентом, web-версией и PWA;
 - объединять локальные напоминания при первом подключении учетной записи;
 - синхронизировать активные, пропущенные и исторические записи;
 - отмечать похожие напоминания как возможные дубли;
@@ -70,6 +93,7 @@
 - продолжать работать локально при временной потере сети и досинхронизировать изменения позже.
 
 Серверная часть находится в каталоге `server/`.
+Web/PWA-файлы находятся в каталоге `server/web/`.
 
 <a id="ru-telegram"></a>
 ### Telegram
@@ -129,6 +153,10 @@ NNotify поддерживает два варианта Telegram-эскалац
 - Windows 10/11 x64
 - .NET Desktop Runtime 8.0
 
+Web/PWA:
+
+- современный браузер с HTTPS-доступом к NNotify Sync Server
+
 Сервер синхронизации:
 
 - Linux-сервер
@@ -172,7 +200,7 @@ artifacts\singlefile_release\NNotify.exe
 <a id="ru-server"></a>
 ### Сервер
 
-Сервер авторизации и синхронизации находится в `server/`.
+Сервер авторизации, синхронизации и web/PWA находится в `server/`.
 
 Подробная инструкция по развертыванию:
 
@@ -186,19 +214,21 @@ server/README.md
 ## English Version
 
 **Quick Links:**
-[Overview](#en-overview) | [Features](#en-features) | [Sync](#en-sync) | [Telegram](#en-telegram) | [Security](#en-security) | [Requirements](#en-requirements) | [Run](#en-run) | [Build](#en-build) | [Server](#en-server)
+[Overview](#en-overview) | [Features](#en-features) | [Web/PWA](#en-pwa) | [Sync](#en-sync) | [Telegram](#en-telegram) | [Security](#en-security) | [Requirements](#en-requirements) | [Run](#en-run) | [Build](#en-build) | [Server](#en-server)
 
 <a id="en-overview"></a>
 ### Overview
 
-**NNotify** is a lightweight desktop reminder app for Windows.
+**NNotify** is a lightweight reminder app for Windows with synchronization, Telegram escalation, and web/PWA access.
 
 It helps you avoid missed tasks with visible overlay reminders, quick acknowledge/snooze actions, local history, and optional Telegram escalation.
 
-Starting with `v2.0.0`, NNotify supports two modes:
+Starting with `v3.0.0`, NNotify includes a redesigned Windows client, a synchronization server, and a web/PWA interface for managing reminders from a browser or phone.
+
+NNotify supports two modes:
 
 - **Local mode** — reminders are stored only on the current PC.
-- **Server mode** — reminders are synchronized across multiple devices via NNotify Sync Server.
+- **Server mode** — reminders are synchronized across the Windows client, web app, and mobile PWA via NNotify Sync Server.
 
 <a id="en-screenshots"></a>
 ### Screenshots
@@ -229,9 +259,29 @@ Starting with `v2.0.0`, NNotify supports two modes:
 - Global hotkey for fast reminder creation.
 - Windows startup integration.
 - Light and dark themes.
+- Fully redesigned Windows client UI.
+- Modern Settings, Add Reminder, and Edit Reminder windows.
+- New version check through GitHub Releases.
 - Russian, English, and German UI.
 - System tray support.
 - Single-instance protection.
+
+<a id="en-pwa"></a>
+### Web/PWA
+
+NNotify v3.0.0 adds a web interface and a mobile PWA version.
+
+PWA works only in server mode and uses an already created synchronization account. Registration is not performed inside the PWA.
+
+In web/PWA, you can:
+
+- sign in with an NNotify Sync Server account;
+- create reminders;
+- acknowledge, snooze, edit, and delete reminders;
+- view upcoming reminders and history;
+- synchronize changes with the Windows client.
+
+On iOS, the PWA can be added to the Home Screen from the browser menu: `Share` → `Add to Home Screen`.
 
 <a id="en-sync"></a>
 ### Server Synchronization
@@ -241,6 +291,7 @@ Synchronization is optional. If no server is configured, NNotify continues to wo
 With a sync account enabled, NNotify can:
 
 - synchronize reminders across multiple PCs;
+- synchronize reminders across the Windows client, web app, and PWA;
 - merge local reminders when the account is connected for the first time;
 - synchronize active, missed, and historical reminders;
 - mark similar reminders as possible duplicates;
@@ -248,6 +299,7 @@ With a sync account enabled, NNotify can:
 - keep working locally during temporary network loss and sync changes later.
 
 The server implementation is located in `server/`.
+Web/PWA files are located in `server/web/`.
 
 <a id="en-telegram"></a>
 ### Telegram
@@ -307,6 +359,10 @@ Client:
 - Windows 10/11 x64
 - .NET Desktop Runtime 8.0
 
+Web/PWA:
+
+- modern browser with HTTPS access to NNotify Sync Server
+
 Sync server:
 
 - Linux server
@@ -350,11 +406,10 @@ artifacts\singlefile_release\NNotify.exe
 <a id="en-server"></a>
 ### Server
 
-The auth and sync server is located in `server/`.
+The auth, sync, and web/PWA server is located in `server/`.
 
 Deployment guide:
 
 ```text
 server/README.md
 ```
-
